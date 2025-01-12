@@ -64,6 +64,15 @@
   max-width: 800px;
 }
 
+.thread {
+  display: flex;
+  align-items: center;
+  justify-content: left;
+  flex-wrap: wrap;
+  max-width: 800px;
+  display: inline-block;
+}
+
 .card {
   margin: 1rem;
   padding: 1.5rem;
