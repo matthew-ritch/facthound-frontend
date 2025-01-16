@@ -29,8 +29,9 @@ export function Thread({
     return (
         <Link href={`/thread/${thread.id}`}>
             <div className={styles.card}>
-                <p>{thread.first_poster_name ?? thread.first_poster_wallet} {parsed_date.toLocaleDateString()}:</p>
-                <p>{thread.topic}</p>
+                <h4 className={styles.cardtitle}>{thread.topic}</h4>
+                <h5>{thread.first_poster_name ?? thread.first_poster_wallet} {parsed_date.toLocaleDateString()}</h5>
+                <h5>{thread.total_bounty ? `${thread.total_bounty / (10^18)} eth in` : 'No'} bounties available</h5>
             </div>
         </Link>
     )
@@ -41,7 +42,7 @@ export function ThreadList({
 }: ThreadListProps) {
     return (
         <main>
-            <div className={styles.thread}>
+            <div className={styles.threads}>
                 {threads.threads.map(k => <Thread thread={k} />)}
             </div>
         </main>
