@@ -32,7 +32,7 @@ export default function Page({
     return (
         <main>
             <div className={styles.thread}>
-                {thread.posts.map(k => <Post post={k} />)}
+                {thread.posts.map(k => <Post post={k} key={k.id}/>)}
             </div>
         </main>
     )

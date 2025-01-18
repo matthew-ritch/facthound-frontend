@@ -43,7 +43,7 @@ export function ThreadList({
     return (
         <main>
             <div className={styles.threads}>
-                {threads.threads.map(k => <Thread thread={k} />)}
+                {threads.threads.map(k => <Thread thread={k} key={k.id}/>)}
             </div>
         </main>
     )
