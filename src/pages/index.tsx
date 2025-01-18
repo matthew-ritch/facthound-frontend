@@ -1,16 +1,13 @@
-import { ConnectButton } from '@rainbow-me/rainbowkit';
-import { getAccount } from '@wagmi/core';
 import { config } from '../wagmi';
-import type { NextPage } from 'next';
 import Head from 'next/head';
 import styles from '../styles/Home.module.css';
 import { ThreadList, ThreadListProps } from '../components/threads'
-import Link from 'next/link'
+import { LoginButtons } from '../components/loginbuttons'
 
 export default function Home({
   threads,
 }: ThreadListProps) {
-  const { address, isConnected } = getAccount(config);
+
   return (
     <div className={styles.container}>
       <Head>
@@ -21,30 +18,14 @@ export default function Home({
         />
         <link href="static/favicon.ico" rel="icon" />
       </Head>
-
       <main className={styles.main}>
-
-
         <h1 className={styles.title}>
           Welcome to FactHound!
         </h1>
-
-        <div className={styles.grid}>
-          <div>
-            <ConnectButton />
-          </div>
-
-          {(~isConnected) &&
-            <div className={styles.card}>
-              <Link href={`/login`}>Or login with username and password</Link>
-            </div>}
-          
-        </div>
-
+        <LoginButtons config={config} />
         <div className={styles.grid}>
           <ThreadList threads={threads} />
         </div>
-
         <div className={styles.grid}>
           <div className={styles.card}>
             Post new thread
@@ -53,14 +34,6 @@ export default function Home({
       </main>
     </div>
   );
-}
-
-interface Params {
-  id: string;
-}
-
-interface Context {
-  params: Params;
 }
 
 export async function getServerSideProps() {
