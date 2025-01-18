@@ -20,7 +20,7 @@ export default function Home({
       </Head>
       <main className={styles.main}>
         <h1 className={styles.title}>
-          Welcome to FactHound!
+          Welcome to FactHound
         </h1>
         <LoginButtons config={config} />
         <div className={styles.grid}>
