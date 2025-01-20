@@ -7,7 +7,6 @@ import { LoginButtons } from '../components/loginbuttons'
 export default function Home({
   threads,
 }: ThreadListProps) {
-
   return (
     <div className={styles.container}>
       <Head>
@@ -22,7 +21,7 @@ export default function Home({
         <h1 className={styles.title}>
           Welcome to FactHound
         </h1>
-        <LoginButtons config={config} />
+        <LoginButtons config={config} username={'A'} />
         <div className={styles.grid}>
           <ThreadList threads={threads} />
         </div>

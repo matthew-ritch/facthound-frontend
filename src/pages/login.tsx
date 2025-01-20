@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/router';
 import api from '../utils/api';
 import styles from '../styles/Login.module.css';
-import { redirect } from 'next/navigation'
+import { cookies } from 'next/headers'
 
 export default function Login() {
   const [credentials, setCredentials] = useState({
@@ -15,11 +15,6 @@ export default function Login() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      // const formData = new FormData(e.currentTarget)
-      // setCredentials({
-      //   ...credentials,
-      //   username: e.target.value
-      // })
       const response = await api.post('/auth/api/token/', {
         username: credentials.username,
         password: credentials.password,
