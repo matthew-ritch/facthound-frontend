@@ -3,6 +3,7 @@ import { useRouter } from 'next/router';
 import api from '../utils/api';
 import styles from '../styles/Login.module.css';
 import { cookies } from 'next/headers'
+import Link from 'next/link'
 
 export default function Login() {
   const [credentials, setCredentials] = useState({
@@ -37,40 +38,49 @@ export default function Login() {
   };
 
   return (
-    <div className={styles.container}>
-      <form className={styles.form} onSubmit={handleSubmit}>
-        <h1>Login</h1>
-        {error && <div className={styles.error}>{error}</div>}
-        <div className={styles.formGroup}>
-          <label htmlFor="username">Username</label>
-          <input
-            type="text"
-            id="username"
-            value={credentials.username}
-            onChange={(e) => setCredentials({
-              ...credentials,
-              username: e.target.value
-            })}
-            required
-          />
+    <main>
+      <div className={styles.container}>
+        <form className={styles.form} onSubmit={handleSubmit}>
+          <h1>Login</h1>
+          {error && <div className={styles.error}>{error}</div>}
+          <div className={styles.formGroup}>
+            <label htmlFor="username">Username</label>
+            <input
+              type="text"
+              id="username"
+              value={credentials.username}
+              onChange={(e) => setCredentials({
+                ...credentials,
+                username: e.target.value
+              })}
+              required
+            />
+          </div>
+          <div className={styles.formGroup}>
+            <label htmlFor="password">Password</label>
+            <input
+              type="password"
+              id="password"
+              value={credentials.password}
+              onChange={(e) => setCredentials({
+                ...credentials,
+                password: e.target.value
+              })}
+              required
+            />
+          </div>
+          <button type="submit" className={styles.submitButton}>
+            Log In
+          </button>
+        </form>
+        <div className={styles.linkdiv}> 
+          <Link href={`/createuser`} className={styles.buttonlink}>
+            Create an account
+          </Link>
         </div>
-        <div className={styles.formGroup}>
-          <label htmlFor="password">Password</label>
-          <input
-            type="password"
-            id="password"
-            value={credentials.password}
-            onChange={(e) => setCredentials({
-              ...credentials,
-              password: e.target.value
-            })}
-            required
-          />
-        </div>
-        <button type="submit" className={styles.submitButton}>
-          Log In
-        </button>
-      </form>
-    </div>
+      </div>
+
+
+    </main>
   );
 }

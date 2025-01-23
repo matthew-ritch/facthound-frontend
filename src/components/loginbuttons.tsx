@@ -37,7 +37,7 @@ export function LoginButtons({
             </div>
             {!isConnected && (
                 <Link href={`/login`}>
-                    <div className={styles.card}>
+                    <div className={styles.buttonlink}>
                         Login
                     </div>
                 </Link>
