@@ -56,7 +56,6 @@ function MyApp({ Component, pageProps }: AppProps) {
   }, []);
   return (
     <WagmiProvider config={config}>
-      <SessionProvider refetchInterval={0} session={pageProps.session}>
         <QueryClientProvider client={client}>
           <RainbowKitAuthenticationProvider adapter={authenticationAdapter} status={AUTHENTICATION_STATUS}>
             <RainbowKitProvider>
@@ -64,7 +63,6 @@ function MyApp({ Component, pageProps }: AppProps) {
             </RainbowKitProvider>
           </RainbowKitAuthenticationProvider>
         </QueryClientProvider>
-      </SessionProvider>
     </WagmiProvider>
   );
 }
