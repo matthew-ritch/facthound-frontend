@@ -142,3 +142,23 @@
   text-decoration: underline;
   cursor: pointer;
 }
+
+.clickable {
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.clickable:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.questionLabel {
+    font-size: 0.8em;
+    color: #666;
+    margin-top: 0.5em;
+}
+
+.answerPost {
+    border-left: 4px solid #4CAF50;
+    background-color: rgba(76, 175, 80, 0.1);
+}

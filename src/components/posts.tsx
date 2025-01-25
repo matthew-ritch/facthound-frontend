@@ -15,14 +15,33 @@ export interface PostInfo {
 
 type PostProps = {
     post: PostInfo;
+    onAnswer?: (questionId: number) => void;
 }
 
 export default function Post({
     post,
+    onAnswer,
 }: PostProps) {
+    const isAnswerableQuestion = post.question_id && post.answer_id === null && onAnswer;
+    
     return (
-        <div className={styles.card}>
+        <div 
+            className={`${styles.card} ${isAnswerableQuestion ? styles.clickable : ''} ${
+                post.question_id !== null && post.answer_id !== null ? styles.answerPost : ''
+            }`}
+            onClick={() => isAnswerableQuestion ? onAnswer(post.question_id) : undefined}
+        >
             {post.poster_name ?? post.poster_wallet}: {post.text}
+            {(post.question_id !== null && post.answer_id === null) && (
+                <div className={styles.questionLabel}>
+                    Click to answer this question
+                </div>
+            )}
+            {(post.question_id !== null && post.answer_id !== null) && (
+                <div className={styles.questionLabel}>
+                    Answer
+                </div>
+            )}
         </div>
     )
 }

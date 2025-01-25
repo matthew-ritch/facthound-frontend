@@ -29,7 +29,7 @@ export default function CreateThread() {
                 questionAddress: threadDetails.questionAddress.length > 0 ? threadDetails.questionAddress : null
             });
 
-            if (response.message === 'question posted') {
+            if (response.message === 'success') {
                 router.push(`/thread/${response.thread}`);
             } else {
                 setError('Thread creation failed. Please try again.');
