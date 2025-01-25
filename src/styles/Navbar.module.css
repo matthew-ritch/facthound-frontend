@@ -1,0 +1,42 @@
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+  background-color: #ffffff;
+  border-bottom: 1px solid #eaeaea;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+}
+
+.logoSection {
+  flex: 1;
+}
+
+.logo {
+  font-size: 1.5rem;
+  font-weight: bold;
+  text-decoration: none;
+  color: #000;
+}
+
+.navLinks {
+  flex: 2;
+  display: flex;
+  justify-content: center;
+}
+
+.navLink {
+  margin: 0 1rem;
+  text-decoration: none;
+  color: #666;
+}
+
+.authSection {
+  flex: 1;
+  display: flex;
+  justify-content: flex-end;
+}

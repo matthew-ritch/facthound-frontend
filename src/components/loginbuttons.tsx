@@ -7,7 +7,7 @@ import { useEffect, useState } from 'react';
 
 interface LoginButtonContext {
     config: Config,
-    username: string | null
+    username?: string | null
 }
 
 export function LoginButtons({

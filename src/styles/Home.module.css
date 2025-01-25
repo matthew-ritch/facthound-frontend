@@ -10,6 +10,7 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  padding-top: 80px; /* Add this line to create space for the fixed navbar */
 }
 
 .footer {

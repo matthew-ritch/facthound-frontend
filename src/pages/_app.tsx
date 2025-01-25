@@ -19,7 +19,7 @@ type AuthenticationStatus = 'loading' | 'unauthenticated' | 'authenticated';
 
 const client = new QueryClient();
 
-function MyApp({ Component, pageProps }: AppProps) {
+function App({ Component, pageProps }: AppProps) {
   const [AUTHENTICATION_STATUS, SET_AUTHENTICATION_STATUS] = useState<AuthenticationStatus>("loading")
   const authenticationAdapter = createAuthenticationAdapter({
     getNonce: async () => {
@@ -67,4 +67,4 @@ function MyApp({ Component, pageProps }: AppProps) {
   );
 }
 
-export default MyApp;
+export default App;

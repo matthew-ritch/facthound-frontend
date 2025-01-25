@@ -2,6 +2,8 @@ import { useRouter } from 'next/router'
 import type { InferGetServerSidePropsType, GetServerSideProps } from 'next'
 import styles from '../../styles/Home.module.css';
 import Post, { PostInfo } from '../../components/posts'
+import { config } from '../../wagmi';
+import { Navbar } from '../../components/navbar';
 
 interface Params {
     id: string;
@@ -30,10 +32,15 @@ export default function Page({
     thread,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
     return (
-        <main>
-            <div className={styles.thread}>
-                {thread.posts.map(k => <Post post={k} key={k.id}/>)}
-            </div>
-        </main>
+        <div className={styles.container}>
+            <Navbar config={config} />
+            <main className={styles.main}>
+                <div className={styles.container}>
+                    <div className={styles.thread}>
+                        {thread.posts.map(k => <Post post={k} key={k.id} />)}
+                    </div>
+                </div>
+            </main>
+        </div>
     )
 }

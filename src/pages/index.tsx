@@ -1,8 +1,9 @@
 import { config } from '../wagmi';
 import Head from 'next/head';
 import styles from '../styles/Home.module.css';
-import { ThreadList, ThreadListProps } from '../components/threads'
-import { LoginButtons } from '../components/loginbuttons'
+import { ThreadList, ThreadListProps } from '../components/threads';
+import { Navbar } from '../components/navbar';
+import Link from 'next/link';
 
 export default function Home({
   threads,
@@ -17,18 +18,15 @@ export default function Home({
         />
         <link href="static/favicon.ico" rel="icon" />
       </Head>
+      <Navbar config={config} />
       <main className={styles.main}>
         <h1 className={styles.title}>
           Welcome to FactHound
         </h1>
-        <LoginButtons config={config} username={'A'} />
         <div className={styles.grid}>
-          <ThreadList threads={threads} />
         </div>
         <div className={styles.grid}>
-          <div className={styles.card}>
-            Post new thread
-          </div>
+          <ThreadList threads={threads} />
         </div>
       </main>
     </div>
