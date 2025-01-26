@@ -7,19 +7,21 @@ import {
   polygon,
   sepolia,
   baseSepolia
-} from 'wagmi/chains';
+} from 'wagmi/chains'
+import { http, createConfig } from 'wagmi'
+import { coinbaseWallet, injected, walletConnect } from 'wagmi/connectors'
+
 
 export const config = getDefaultConfig({
   appName: 'RainbowKit App',
   projectId: 'YOUR_PROJECT_ID',
   chains: [
-    mainnet,
-    polygon,
-    optimism,
-    arbitrum,
-    base,
     baseSepolia,
-    ...(process.env.NEXT_PUBLIC_ENABLE_TESTNETS === 'true' ? [sepolia] : []),
   ],
+  transports: {
+    // [mainnet.id]: http('https://eth-mainnet.g.alchemy.com/v2/J5VbtLhS-VFrpXkxRWPX9XbNIOOcmI_K'),
+    // [base.id]: http("https://base-mainnet.g.alchemy.com/v2/J5VbtLhS-VFrpXkxRWPX9XbNIOOcmI_K"),
+    [baseSepolia.id]: http("https://base-mainnet.g.alchemy.com/v2/J5VbtLhS-VFrpXkxRWPX9XbNIOOcmI_K"),
+},
   ssr: true,
 });
