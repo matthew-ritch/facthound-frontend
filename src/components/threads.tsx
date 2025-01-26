@@ -31,7 +31,7 @@ export function Thread({
         <Link href={`/thread/${thread.id}`}>
             <div className={styles.card}>
                 <h4 className={styles.cardtitle}>{thread.topic}</h4>
-                <h5>{thread.first_poster_name ?? thread.first_poster_wallet} {parsed_date.toLocaleDateString()}</h5>
+                <h5>{thread.first_poster_name ?? `${thread.first_poster_wallet.slice(0, 4)}...${thread.first_poster_wallet.slice(-4)}`} {parsed_date.toLocaleDateString()}</h5>
                 <h5>{thread.total_bounty ? `${formatEther((thread.total_bounty.toString()))} eth in` : 'No'} bounties available</h5>
             </div>
         </Link>
