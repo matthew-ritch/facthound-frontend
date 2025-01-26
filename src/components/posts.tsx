@@ -23,12 +23,12 @@ export default function Post({
     onAnswer,
 }: PostProps) {
     const isAnswerableQuestion = post.question_id && post.answer_id === null && onAnswer;
-    
+    const isAnswer = post.question_id !== null && post.answer_id !== null
+
     return (
-        <div 
-            className={`${styles.card} ${isAnswerableQuestion ? styles.clickable : ''} ${
-                post.question_id !== null && post.answer_id !== null ? styles.answerPost : ''
-            }`}
+        <div
+            className={`${styles.card} ${isAnswerableQuestion ? styles.clickable : ''} ${isAnswer ? styles.answerPost : ''
+                }`}
             onClick={() => isAnswerableQuestion ? onAnswer(post.question_id) : undefined}
         >
             {post.poster_name ?? post.poster_wallet}: {post.text}

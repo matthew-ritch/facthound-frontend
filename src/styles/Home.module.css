@@ -146,6 +146,8 @@
 .clickable {
     cursor: pointer;
     transition: background-color 0.2s;
+    border-left: 4px solid #4ca3af;
+    background-color: #4ca3af28;
 }
 
 .clickable:hover {
