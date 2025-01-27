@@ -8,7 +8,8 @@ export interface ThreadInfo {
     dt: string;
     first_poster_name: string;
     first_poster_wallet: string;
-    total_bounty: number;
+    total_bounty_available: number;
+    total_bounty_claimed: number;
 }
 
 type ThreadProps = {
@@ -32,7 +33,8 @@ export function Thread({
             <div className={styles.card}>
                 <h4 className={styles.cardtitle}>{thread.topic}</h4>
                 <h5>{thread.first_poster_name ?? `${thread.first_poster_wallet.slice(0, 4)}...${thread.first_poster_wallet.slice(-4)}`} {parsed_date.toLocaleDateString()}</h5>
-                <h5>{thread.total_bounty ? `${formatEther((thread.total_bounty.toString()))} eth in` : 'No'} bounties available</h5>
+                <h5>{thread.total_bounty_available ? `${formatEther((thread.total_bounty_available.toString()))} eth in` : 'No'} bounties available</h5>
+                <h5>{thread.total_bounty_claimed ? `${formatEther((thread.total_bounty_claimed.toString()))} eth in` : 'No'} bounties claimed</h5>
             </div>
         </Link>
     )

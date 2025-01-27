@@ -80,6 +80,19 @@ const QUESTION_ABI = [
         ],
         "outputs": [],
         "stateMutability": "nonpayable"
+    },
+    {
+        "type": "function",
+        "name": "payoutAnswer",
+        "inputs": [
+            {
+                "name": "answerHash",
+                "type": "bytes32",
+                "internalType": "bytes32"
+            }
+        ],
+        "outputs": [],
+        "stateMutability": "nonpayable"
     }
 ] as const;
 
@@ -90,7 +103,8 @@ export default function Page({
     const [selectedQuestionId, setSelectedQuestionId] = useState<number | null>(null);
     const [error, setError] = useState('');
     const [waitingForTransaction, setWaitingForTransaction] = useState(false);
-    const [transactionSuccess, setTransactionSuccess] = useState(false);
+    const [transactionType, setTransactionType] = useState<'answer' | 'select' | 'payout' | null>(null);
+    const [transactionComplete, setTransactionComplete] = useState(false);
     const [onchainAnswerProps, setOnchainAnswerProps] = useState({
         questionAddress: '' as `0x${string}`,
         answerHash: '' as `0x${string}`,
@@ -116,8 +130,10 @@ export default function Page({
                 });
 
                 if (receipt.status === 'success') {
-                    await submitToApi(onchainAnswerProps);
-                    setTransactionSuccess(true);
+                    if (transactionType === 'answer') {
+                        await submitToApi(onchainAnswerProps);
+                    }
+                    setTransactionComplete(true);
                 } else {
                     setError('Transaction failed');
                 }
@@ -184,6 +200,7 @@ export default function Page({
                     args: [answerHash ? answerHash : "0x"]
                 });
 
+                setTransactionType('answer');
                 setWaitingForTransaction(true);
                 writeContract(request);
                 return;
@@ -273,6 +290,7 @@ export default function Page({
                     answerHash: formattedHash
                 });
 
+                setTransactionType('select');
                 setWaitingForTransaction(true);
                 writeContract(request);
             } else {
@@ -289,25 +307,36 @@ export default function Page({
         }
     };
 
+
     // Add effect to handle successful transactions
     useEffect(() => {
-        const submitSelection = async () => {
-            if (transactionSuccess && selectedAnswerProps.questionId) {
-                try {
-                    await api.post('/questions/api/selection/', {
-                        question: selectedAnswerProps.questionId,
-                        answer: selectedAnswerProps.answerId
-                    });
-                    router.reload();
-                } catch (err) {
-                    console.error('Failed to submit selection to API:', err);
-                    setError('Failed to record selection');
+        const handleTransactionSuccess = async () => {
+            if (!transactionComplete) return;
+
+            try {
+                switch (transactionType) {
+                    case 'select':
+                        if (selectedAnswerProps.questionId) {
+                            await api.post('/questions/api/selection/', {
+                                question: selectedAnswerProps.questionId,
+                                answer: selectedAnswerProps.answerId
+                            });
+                        }
+                        break;
                 }
+                
+                // Reset states
+                setTransactionType(null);
+                setTransactionComplete(false);
+                router.reload();
+            } catch (err) {
+                console.error('Failed to submit to API:', err);
+                setError('Failed to record transaction');
             }
         };
 
-        submitSelection();
-    }, [transactionSuccess]);
+        handleTransactionSuccess();
+    }, [transactionComplete]);
 
     return (
         <div className={styles.container}>
@@ -349,7 +378,7 @@ export default function Page({
                         )}
                         {hash && <div>Transaction Hash: {hash}</div>}
                         {isPending && <div>Waiting for confirmation...</div>}
-                        {transactionSuccess && <div>Transaction Confirmed!</div>}
+                        {transactionComplete && <div>Transaction Confirmed!</div>}
                     </form>
                 </div>
             </main>
