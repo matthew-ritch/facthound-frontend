@@ -10,6 +10,7 @@ export interface ThreadInfo {
     first_poster_wallet: string;
     total_bounty_available: number;
     total_bounty_claimed: number;
+    tags: string[];  // Add this line
 }
 
 type ThreadProps = {
@@ -34,6 +35,9 @@ export function Thread({
         day: 'numeric'
     });
     
+    // Convert tags to array if it's not already
+    const tags = Array.isArray(thread.tags) ? thread.tags : [];
+    
     return (
         <Link href={`/thread/${thread.id}`} style={{ textDecoration: 'none' }}>
             <div className={styles.card}>
@@ -43,6 +47,13 @@ export function Thread({
                         `${thread.first_poster_wallet.slice(0, 4)}...${thread.first_poster_wallet.slice(-4)}`
                     } • {formattedDate}
                 </div>
+                {tags.length > 0 && (
+                    <div className={styles.tagContainer}>
+                        {tags.map((tag, index) => (
+                            <span key={index} className={styles.tag}>{tag}</span>
+                        ))}
+                    </div>
+                )}
                 <div className={styles.bountyInfo}>
                     <div className={`${styles.bountyTag} ${styles.available}`}>
                         {thread.total_bounty_available ? 

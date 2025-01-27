@@ -73,9 +73,9 @@ export default function Post({
                     <div className={styles.questionLabel}>
                         Answer to question {post.question_id}
                     </div>
-                    <div className={styles.questionLabel}>
-                        {(canSelectOnChain || canSelectOffChain) ? 'Click to select answer' : ''}
-                    </div>
+                    {(canSelectOnChain || canSelectOffChain) && !(post.answer_status === "SE" || post.answer_status === "PO" || post.answer_status === "CE") && <div className={styles.questionLabel}>
+                        Click to select answer
+                    </div>}
                     {(post.answer_status === "SE" || post.answer_status === "PO" || post.answer_status === "CE") && 
                         <div className={styles.questionLabel}>
                             Selected Answer

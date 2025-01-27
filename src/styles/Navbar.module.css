@@ -30,6 +30,8 @@
 }
 
 .navLink {
+  font-size: 1.5rem;
+  font-weight: bold;
   margin: 0 1rem;
   text-decoration: none;
   color: #666;

@@ -4,10 +4,34 @@ import styles from '../styles/Home.module.css';
 import { ThreadList, ThreadListProps } from '../components/threads';
 import { Navbar } from '../components/navbar';
 import Link from 'next/link';
+import { useState } from 'react';
 
 export default function Home({
   threads,
 }: ThreadListProps) {
+  const [searchResults, setSearchResults] = useState(threads.threads);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [isSearching, setIsSearching] = useState(false);
+
+  const handleSearch = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!searchTerm.trim()) {
+      setSearchResults(threads.threads);
+      return;
+    }
+
+    setIsSearching(true);
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/questions/api/search/?search_string=${encodeURIComponent(searchTerm)}`);
+      const data = await res.json();
+      setSearchResults(data.threads);
+    } catch (error) {
+      console.error('Search failed:', error);
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
   return (
     <div className={styles.container}>
       <Head>
@@ -23,10 +47,26 @@ export default function Home({
         <h1 className={styles.title}>
           Welcome to FactHound
         </h1>
-        <div className={styles.grid}>
+        <div className={styles.searchContainer}>
+          <form onSubmit={handleSearch}>
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Search questions and answers..."
+              className={styles.searchInput}
+            />
+            <button type="submit" disabled={isSearching}>
+              {isSearching ? 'Searching...' : 'Search'}
+            </button>
+          </form>
         </div>
         <div className={styles.grid}>
-          <ThreadList threads={threads} />
+          {searchResults.length === 0 ? (
+            <p>No results found</p>
+          ) : (
+            <ThreadList threads={{ threads: searchResults }} />
+          )}
         </div>
       </main>
     </div>
@@ -36,7 +76,7 @@ export default function Home({
 export async function getServerSideProps() {
   // Fetch data from external API
   const res = await fetch(process.env.BACKEND_URL + `/questions/api/threadlist`);
-  const threads: ThreadListProps = await res.json();
+  const data = await res.json();
   // Pass data to the page via props
-  return { props: { threads } };
+  return { props: { threads: data } };
 }

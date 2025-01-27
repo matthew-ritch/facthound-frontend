@@ -264,6 +264,7 @@ export default function Page({
 
     const handleAnswer = (questionId: number) => {
         setSelectedQuestionId(questionId);
+        window.scrollTo(0, document.body.scrollHeight);
     };
 
     const handleSelectAnswer = async (questionId: number, answerId: number, questionAddress?: string, answerHash?: string) => {
@@ -388,7 +389,9 @@ export default function Page({
                                 {selectedQuestionId ? 'Submit Answer' : 'Reply'}
                             </button>
                             {selectedQuestionId && (
-                                <button type="button" onClick={() => setSelectedQuestionId(null)}>
+                                <button type="button" onClick={() => {
+                                    setSelectedQuestionId(null);
+                                }}>
                                     Cancel Answer
                                 </button>
                             )}

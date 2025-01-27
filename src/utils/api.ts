@@ -1,7 +1,15 @@
 const baseURL = process.env.PUBLIC_DJANGO_API_URL || 'http://localhost:8000';
 
+const isServer = typeof window === 'undefined';
+
+const getStorage = () => {
+  if (isServer) return { getItem: () => null, setItem: () => null, clear: () => null };
+  return localStorage;
+};
+
 const refreshToken = async (): Promise<boolean> => {
-  const refresh = localStorage.getItem('refresh');
+  const storage = getStorage();
+  const refresh = storage.getItem('refresh');
   if (!refresh) return false;
 
   try {
@@ -15,8 +23,8 @@ const refreshToken = async (): Promise<boolean> => {
     
     if (response.ok) {
       const data = await response.json();
-      localStorage.setItem('token', data.access);
-      localStorage.setItem('refresh', data.refresh);
+      storage.setItem('token', data.access);
+      storage.setItem('refresh', data.refresh);
       return true;
     }
     return false;
@@ -31,9 +39,11 @@ const getHeaders = () => {
     'Accept': 'application/json',
   });
 
-  const token = localStorage.getItem('token');
-  if (token) {
-    headers.append('Authorization', `Bearer ${token}`);
+  if (!isServer) {
+    const token = getStorage().getItem('token');
+    if (token) {
+      headers.append('Authorization', `Bearer ${token}`);
+    }
   }
 
   return headers;
@@ -61,7 +71,7 @@ const api = {
           });
           return retryResponse.json();
         } else {
-          localStorage.clear();
+          getStorage().clear();
           window.location.href = '/login';
           throw new Error('Session expired');
         }
@@ -94,7 +104,7 @@ const api = {
           });
           return retryResponse.json();
         } else {
-          localStorage.clear();
+          getStorage().clear();
           window.location.href = '/login';
           throw new Error('Session expired');
         }
