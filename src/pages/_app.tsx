@@ -10,7 +10,6 @@ import {
   RainbowKitProvider,
 } from '@rainbow-me/rainbowkit';
 import { SessionProvider } from 'next-auth/react';
-// import { authenticationAdapter } from '../components/authenticationAdapter'
 import { useEffect, useState } from 'react';
 import { config } from '../wagmi';
 import { createSiweMessage } from 'viem/siwe';
@@ -24,7 +23,6 @@ function App({ Component, pageProps }: AppProps) {
   const authenticationAdapter = createAuthenticationAdapter({
     getNonce: async () => {
       const response = await api.get('/auth/api/get_nonce/');
-      console.log(response.nonce)
       return await response.nonce;
     },
     createMessage: ({ nonce, address, chainId }) => {

@@ -84,7 +84,6 @@ export default function CreateThread() {
                     abi: FACTORY_ABI,
                     eventName: 'QuestionCreated',
                     onLogs: async (logs) => {
-                        console.log('Event detected:', logs);
                         const log = logs[0];
                         if (log) {
                             try {
