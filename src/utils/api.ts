@@ -1,14 +1,5 @@
 const baseURL = process.env.PUBLIC_DJANGO_API_URL || 'http://localhost:8000';
 
-const isTokenExpired = (token: string): boolean => {
-  try {
-    const payload = JSON.parse(atob(token.split('.')[1]));
-    return payload.exp * 1000 < Date.now();
-  } catch (e) {
-    return true;
-  }
-};
-
 const refreshToken = async (): Promise<boolean> => {
   const refresh = localStorage.getItem('refresh');
   if (!refresh) return false;
@@ -25,6 +16,7 @@ const refreshToken = async (): Promise<boolean> => {
     if (response.ok) {
       const data = await response.json();
       localStorage.setItem('token', data.access);
+      localStorage.setItem('refresh', data.refresh);
       return true;
     }
     return false;
@@ -47,50 +39,71 @@ const getHeaders = () => {
   return headers;
 };
 
-const executeRequest = async (requestFn: () => Promise<Response>) => {
-  const token = localStorage.getItem('token');
-  
-  if (token && isTokenExpired(token)) {
-    const refreshed = await refreshToken();
-    if (!refreshed) {
-      // Handle failed refresh (e.g., logout)
-      localStorage.clear();
-      window.location.href = '/login';
-      throw new Error('Session expired');
-    }
-  }
-
-  const response = await requestFn();
-  if (response.status === 401) {
-    const refreshed = await refreshToken();
-    if (refreshed) {
-      return await requestFn();
-    } else {
-      localStorage.clear();
-      window.location.href = '/login';
-      throw new Error('Session expired');
-    }
-  }
-  return response.json();
-};
-
 const api = {
   get: async (url: string, data?: any) => {
-    return executeRequest(() => fetch(`${baseURL}${url}`, {
-      method: 'GET',
-      headers: getHeaders(),
-      credentials: 'include',
-      body: data ? JSON.stringify(data) : undefined,
-    }));
+    try {
+      const response = await fetch(`${baseURL}${url}`, {
+        method: 'GET',
+        headers: getHeaders(),
+        credentials: 'include',
+        body: data ? JSON.stringify(data) : undefined,
+      });
+
+      if (response.status === 401) {
+        const refreshed = await refreshToken();
+        if (refreshed) {
+          // Retry the request with new token
+          const retryResponse = await fetch(`${baseURL}${url}`, {
+            method: 'GET',
+            headers: getHeaders(),
+            credentials: 'include',
+            body: data ? JSON.stringify(data) : undefined,
+          });
+          return retryResponse.json();
+        } else {
+          localStorage.clear();
+          window.location.href = '/login';
+          throw new Error('Session expired');
+        }
+      }
+
+      return response.json();
+    } catch (error) {
+      throw error;
+    }
   },
 
   post: async (url: string, data: any) => {
-    return executeRequest(() => fetch(`${baseURL}${url}`, {
-      method: 'POST',
-      headers: getHeaders(),
-      credentials: 'include',
-      body: JSON.stringify(data),
-    }));
+    try {
+      const response = await fetch(`${baseURL}${url}`, {
+        method: 'POST',
+        headers: getHeaders(),
+        credentials: 'include',
+        body: JSON.stringify(data),
+      });
+
+      if (response.status === 401) {
+        const refreshed = await refreshToken();
+        if (refreshed) {
+          // Retry the request with new token
+          const retryResponse = await fetch(`${baseURL}${url}`, {
+            method: 'POST',
+            headers: getHeaders(),
+            credentials: 'include',
+            body: JSON.stringify(data),
+          });
+          return retryResponse.json();
+        } else {
+          localStorage.clear();
+          window.location.href = '/login';
+          throw new Error('Session expired');
+        }
+      }
+
+      return response.json();
+    } catch (error) {
+      throw error;
+    }
   },
 
   // Add other methods (put, delete, etc.) as needed

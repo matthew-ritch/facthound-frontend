@@ -6,6 +6,7 @@ import { encodePacked, keccak256, createPublicClient, http, parseAbiItem } from 
 import { publicClient } from '../client';
 import api from '../utils/api';
 import styles from '../styles/Login.module.css';
+import stylesHome from '../styles/Login.module.css';
 import Link from 'next/link';
 import { config } from '../wagmi';
 import { Navbar } from '../components/navbar';
@@ -189,61 +190,6 @@ export default function CreateThread() {
         };
     }, []);
 
-    // Replace the existing transaction status section with this new one
-    const renderTransactionStatus = () => {
-        switch (transactionState) {
-            case TransactionStates.PREPARING:
-                return (
-                    <div className={styles.transactionStatus}>
-                        <div className={styles.statusMessage}>
-                            Preparing your transaction...
-                        </div>
-                    </div>
-                );
-            case TransactionStates.AWAITING_SIGNATURE:
-                return (
-                    <div className={styles.transactionStatus}>
-                        <div className={styles.statusMessage}>
-                            Please sign the transaction in your wallet...
-                        </div>
-                    </div>
-                );
-            case TransactionStates.PENDING:
-                return (
-                    <div className={styles.transactionStatus}>
-                        <div className={styles.statusMessage}>
-                            Transaction in progress...
-                            {hash && <div className={styles.hashDisplay}> 
-                                Transaction Hash: <a href={`https://sepolia.basescan.org/tx/${hash}`} 
-                                                   target="_blank" 
-                                                   rel="noopener noreferrer">
-                                    {`${hash.substring(0, 6)}...${hash.substring(hash.length - 4)}`}
-                                </a>
-                            </div>}
-                        </div>
-                    </div>
-                );
-            case TransactionStates.SUCCESS:
-                return (
-                    <div className={`${styles.transactionStatus} ${styles.success}`}>
-                        <div className={styles.statusMessage}>
-                            Transaction Successful! ✓
-                        </div>
-                    </div>
-                );
-            case TransactionStates.ERROR:
-                return (
-                    <div className={`${styles.transactionStatus} ${styles.error}`}>
-                        <div className={styles.statusMessage}>
-                            Transaction Failed: {transactionError}
-                        </div>
-                    </div>
-                );
-            default:
-                return null;
-        }
-    };
-
     return (
         <div className={styles.container}>
             <Navbar config={config} />
@@ -307,7 +253,35 @@ export default function CreateThread() {
                 </button>
             </form>
             
-            {renderTransactionStatus()}
+            <div className={styles.transactionStatus}>
+                {hash && (
+                    <div className={styles.statusItem}>
+                        <span className={styles.statusLabel}>Transaction Hash:</span>
+                        <span className={styles.statusValue}>
+                            <a href={`https://sepolia.basescan.org/tx/${hash}`} 
+                               target="_blank" 
+                               rel="noopener noreferrer">
+                                {`${hash.substring(0, 6)}...${hash.substring(hash.length - 4)}`}
+                            </a>
+                        </span>
+                    </div>
+                )}
+                {transactionState === TransactionStates.PENDING && (
+                    <div className={styles.statusItem}>
+                        <span className={styles.statusPending}>Waiting for confirmation...</span>
+                    </div>
+                )}
+                {transactionState === TransactionStates.SUCCESS && (
+                    <div className={styles.statusItem}>
+                        <span className={styles.statusSuccess}>Transaction Confirmed! ✓</span>
+                    </div>
+                )}
+                {transactionState === TransactionStates.ERROR && (
+                    <div className={styles.statusItem}>
+                        <span className={styles.statusError}>Transaction Failed: {transactionError}</span>
+                    </div>
+                )}
+            </div>
             
             <div className={styles.linkdiv}>
                 <Link href={`..`} className={styles.buttonlink}>

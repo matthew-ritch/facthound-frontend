@@ -338,7 +338,7 @@ export default function Page({
                         }
                         break;
                 }
-                
+
                 // Reset states
                 setTransactionType(null);
                 setTransactionComplete(false);
@@ -391,10 +391,25 @@ export default function Page({
                                 Cancel Answer
                             </button>
                         )}
-                        {hash && <div>Transaction Hash: {hash}</div>}
-                        {isPending && <div>Waiting for confirmation...</div>}
-                        {transactionComplete && <div>Transaction Confirmed!</div>}
                     </form>
+                    <div className={styles.transactionStatus}>
+                        {hash && (
+                            <div className={styles.statusItem}>
+                                <span className={styles.statusLabel}>Transaction Hash:</span>
+                                <span className={styles.statusValue}>{hash}</span>
+                            </div>
+                        )}
+                        {isPending && (
+                            <div className={styles.statusItem}>
+                                <span className={styles.statusPending}>Waiting for confirmation...</span>
+                            </div>
+                        )}
+                        {transactionComplete && (
+                            <div className={styles.statusItem}>
+                                <span className={styles.statusSuccess}>Transaction Confirmed! ✓</span>
+                            </div>
+                        )}
+                    </div>
                 </div>
             </main>
         </div>
