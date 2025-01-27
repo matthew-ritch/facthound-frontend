@@ -56,7 +56,10 @@ export default function Post({
 
     return (
         <div
-            className={`${styles.card} ${isAnswerableQuestion ? styles.clickable : ''} ${isAnswer ? styles.answerPost : ''}`}
+            className={`${styles.card} 
+                ${isAnswerableQuestion ? styles.clickable : ''} 
+                ${isAnswer ? styles.answerPost : ''} 
+                ${post.answer_status && ['SE', 'PO', 'CE'].includes(post.answer_status) ? styles.selectedAnswer : ''}`}
             onClick={handleClick}
         >
             {post.poster_name ?? `${post.poster_wallet.slice(0, 4)}...${post.poster_wallet.slice(-4)}`}: {post.text}
