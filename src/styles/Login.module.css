@@ -14,7 +14,7 @@
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   width: 100%;
-  max-width: 400px;
+  max-width: 600px;
 }
 
 .formGroup {
@@ -126,6 +126,11 @@
     text-decoration: underline;
 }
 
+.helperText {
+  color: #cc7e00;
+  font-style: italic;
+}
+
 .success {
     background-color: #e6ffe6;
     border: 1px solid #00cc00;
@@ -169,4 +174,14 @@
 .statusError {
     color: #fa5252;
     font-weight: 500;
+}
+
+.postText {
+    width: 100%;
+    min-height: 200px;
+    padding: 10px;
+    margin-bottom: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    resize: vertical;
 }

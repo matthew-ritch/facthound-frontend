@@ -6,7 +6,6 @@ import { encodePacked, keccak256, createPublicClient, http, parseAbiItem } from 
 import { publicClient } from '../client';
 import api from '../utils/api';
 import styles from '../styles/Login.module.css';
-import stylesHome from '../styles/Login.module.css';
 import Link from 'next/link';
 import { config } from '../wagmi';
 import { Navbar } from '../components/navbar';
@@ -246,7 +245,11 @@ export default function CreateThread() {
                             ...threadDetails,
                             bounty: e.target.value
                         })}
+                        disabled={!address}
                     />
+                    {!address && (
+                        <small className={styles.helperText}>Connect wallet to set bounty</small>
+                    )}
                 </div>
                 <button type="submit" disabled={transactionState !== TransactionStates.IDLE}>
                     {transactionState === TransactionStates.IDLE ? 'Create Thread' : 'Processing...'}

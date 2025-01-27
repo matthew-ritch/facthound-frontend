@@ -369,29 +369,31 @@ export default function Page({
                             />
                         ))}
                     </div>
-                    <form className={loginStyles.form} onSubmit={handleSubmit}>
-                        {error && <div className={loginStyles.error}>{error}</div>}
-                        <div className={loginStyles.formGroup}>
-                            <label htmlFor="reply">
-                                {selectedQuestionId ? 'Answer Question' : 'Reply'}
-                            </label>
-                            <textarea
-                                className={loginStyles.postText}
-                                id="reply"
-                                value={replyText}
-                                onChange={(e) => setReplyText(e.target.value)}
-                                required
-                            />
-                        </div>
-                        <button type="submit">
-                            {selectedQuestionId ? 'Submit Answer' : 'Reply'}
-                        </button>
-                        {selectedQuestionId && (
-                            <button type="button" onClick={() => setSelectedQuestionId(null)}>
-                                Cancel Answer
+                    <div className={styles.replyContainer}>
+                        <form className={loginStyles.form} onSubmit={handleSubmit}>
+                            {error && <div className={loginStyles.error}>{error}</div>}
+                            <div className={loginStyles.formGroup}>
+                                <label htmlFor="reply">
+                                    {selectedQuestionId ? 'Answer Question' : 'Reply'}
+                                </label>
+                                <textarea
+                                    className={loginStyles.postText}
+                                    id="reply"
+                                    value={replyText}
+                                    onChange={(e) => setReplyText(e.target.value)}
+                                    required
+                                />
+                            </div>
+                            <button type="submit">
+                                {selectedQuestionId ? 'Submit Answer' : 'Reply'}
                             </button>
-                        )}
-                    </form>
+                            {selectedQuestionId && (
+                                <button type="button" onClick={() => setSelectedQuestionId(null)}>
+                                    Cancel Answer
+                                </button>
+                            )}
+                        </form>
+                    </div>
                     <div className={styles.transactionStatus}>
                         {hash && (
                             <div className={styles.statusItem}>
