@@ -67,6 +67,19 @@ const QUESTION_ABI = [
             }
         ],
         "anonymous": false
+    },
+    {
+        "type": "function",
+        "name": "selectAnswer",
+        "inputs": [
+            {
+                "name": "answerHash",
+                "type": "bytes32",
+                "internalType": "bytes32"
+            }
+        ],
+        "outputs": [],
+        "stateMutability": "nonpayable"
     }
 ] as const;
 
@@ -82,6 +95,12 @@ export default function Page({
         questionAddress: '' as `0x${string}`,
         answerHash: '' as `0x${string}`,
     });
+    const [selectedAnswerProps, setSelectedAnswerProps] = useState({
+        questionId: 0,
+        answerId: 0,
+        questionAddress: '' as `0x${string}`,
+        answerHash: '' as `0x${string}`,
+    });
     const { data: hash, isPending, writeContract } = useWriteContract();
     const router = useRouter();
     const { address } = useAccount();
@@ -89,31 +108,22 @@ export default function Page({
 
     useEffect(() => {
         if (!pendingTx) return;
-        console.log('Transaction monitoring started for hash:', pendingTx);
 
         const checkTransaction = async () => {
-            console.log('Checking transaction status...');
             try {
-                console.log('Waiting for receipt...');
                 const receipt = await publicClient.waitForTransactionReceipt({
                     hash: pendingTx
                 });
-                console.log('Receipt received:', receipt);
 
                 if (receipt.status === 'success') {
-                    console.log('Transaction successful, submitting to API...');
                     await submitToApi(onchainAnswerProps);
                     setTransactionSuccess(true);
-                    console.log('API submission complete');
                 } else {
-                    console.error('Transaction failed with receipt:', receipt);
                     setError('Transaction failed');
                 }
             } catch (err) {
-                console.error('Transaction monitoring error:', err);
                 setError('Transaction failed');
             } finally {
-                console.log('Transaction monitoring complete');
                 setWaitingForTransaction(false);
                 setPendingTx(null);
             }
@@ -134,14 +144,12 @@ export default function Page({
 
     const handleSubmit = async (e: React.FormEvent) => {
         if (localStorage.getItem('token') == null) {
-            console.log('No token found, redirecting to login');
             router.push(`/login/`);
             return;
         }
         e.preventDefault();
 
         if (!selectedQuestionId) {
-            console.log('No question selected, proceeding with regular post');
             await submitToApi();
             return;
         }
@@ -153,7 +161,6 @@ export default function Page({
                 setError('Invalid question selected');
                 return;
             }
-            console.log('Selected post:', selectedPost);
 
             // Check if this is a question that requires on-chain verification
             if (selectedPost.question_address) {
@@ -162,10 +169,7 @@ export default function Page({
                     return;
                 }
 
-                console.log('Preparing on-chain answer submission');
                 const answerHash = createAnswerHash();
-                console.log('Generated answer hash:', answerHash);
-
                 const questionAddress = selectedPost.question_address as `0x${string}`;
 
                 setOnchainAnswerProps({
@@ -173,23 +177,19 @@ export default function Page({
                     questionAddress
                 });
 
-                console.log('Simulating contract interaction...');
                 const { request } = await simulateContract(config, {
                     address: questionAddress,
                     abi: QUESTION_ABI,
                     functionName: 'createAnswer',
                     args: [answerHash ? answerHash : "0x"]
                 });
-                console.log('Contract simulation successful');
 
                 setWaitingForTransaction(true);
-                console.log('Initiating contract write...');
                 writeContract(request);
                 return;
             }
 
             // If we get here, this is a regular question without blockchain verification
-            console.log('Proceeding with direct API submission');
             await submitToApi();
 
         } catch (err: any) {
@@ -206,7 +206,6 @@ export default function Page({
 
     useEffect(() => {
         if (hash) {
-            console.log('New transaction hash received:', hash);
             setPendingTx(hash);
         }
     }, [hash]);
@@ -225,17 +224,14 @@ export default function Page({
             ? { ...basePayload, answerHash: props.answerHash, questionAddress: props.questionAddress }
             : basePayload;
 
-        console.log('Submitting to API with payload:', payload);
 
         const response = await api.post(
             selectedQuestionId ? '/questions/api/answer/' : '/questions/api/post/',
             payload
         );
 
-        console.log('API response:', response);
 
         if (response.message.includes('success')) {
-            console.log('API submission successful, reloading page');
             router.reload();
         } else {
             console.error('API submission failed:', response);
@@ -246,6 +242,72 @@ export default function Page({
     const handleAnswer = (questionId: number) => {
         setSelectedQuestionId(questionId);
     };
+
+    const handleSelectAnswer = async (questionId: number, answerId: number, questionAddress?: string, answerHash?: string) => {
+        if (!address) {
+            setError('Please connect your wallet');
+            return;
+        }
+
+        try {
+            if (questionAddress && answerHash) {
+                // Format the hash to ensure it's a proper bytes32
+                // Remove '0x' prefix if present and ensure it's 32 bytes (64 characters)
+                const formattedHash = `0x${answerHash.replace('0x', '').padStart(64, '0')}` as `0x${string}`;
+
+                const contract = {
+                    address: questionAddress as `0x${string}`,
+                    abi: QUESTION_ABI
+                };
+
+                const { request } = await simulateContract(config, {
+                    ...contract,
+                    functionName: 'selectAnswer',
+                    args: [formattedHash]
+                });
+
+                setSelectedAnswerProps({
+                    questionId,
+                    answerId,
+                    questionAddress: questionAddress as `0x${string}`,
+                    answerHash: formattedHash
+                });
+
+                setWaitingForTransaction(true);
+                writeContract(request);
+            } else {
+                // For non-blockchain questions, directly call the API
+                await api.post('/questions/api/selection/', {
+                    question: questionId,
+                    answer: answerId
+                });
+                router.reload();
+            }
+        } catch (err: any) {
+            console.error('Select answer error:', err);
+            setError(err.message || 'Failed to select answer');
+        }
+    };
+
+    // Add effect to handle successful transactions
+    useEffect(() => {
+        const submitSelection = async () => {
+            if (transactionSuccess && selectedAnswerProps.questionId) {
+                try {
+                    await api.post('/questions/api/selection/', {
+                        question: selectedAnswerProps.questionId,
+                        answer: selectedAnswerProps.answerId
+                    });
+                    router.reload();
+                } catch (err) {
+                    console.error('Failed to submit selection to API:', err);
+                    setError('Failed to record selection');
+                }
+            }
+        };
+
+        submitSelection();
+    }, [transactionSuccess]);
 
     return (
         <div className={styles.container}>
@@ -258,6 +320,8 @@ export default function Page({
                                 post={k}
                                 key={k.id}
                                 onAnswer={handleAnswer}
+                                onSelectAnswer={handleSelectAnswer}
+                                userAddress={address}
                             />
                         ))}
                     </div>
