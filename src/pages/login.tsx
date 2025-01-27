@@ -1,8 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import api from '../utils/api';
 import styles from '../styles/Login.module.css';
 import Link from 'next/link'
+import { ConnectButton } from '@rainbow-me/rainbowkit';
+import { useAccount } from 'wagmi';
 
 export default function Login() {
   const [credentials, setCredentials] = useState({
@@ -11,6 +13,13 @@ export default function Login() {
   });
   const [error, setError] = useState('');
   const router = useRouter();
+  const { isConnected } = useAccount();
+
+  useEffect(() => {
+    if (isConnected) {
+      router.push('/');
+    }
+  }, [isConnected, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -74,14 +83,13 @@ export default function Login() {
             Log In
           </button>
         </form>
-        <div className={styles.linkdiv}> 
-          <Link href={`/createuser`} className={styles.buttonlink}>
-            Create an account
-          </Link>
+        <div className={styles.buttonContainer}>
+            <ConnectButton />
+            <Link href={`/createuser`} className={styles.buttonlink}>
+              Create an account
+            </Link>
         </div>
       </div>
-
-
     </main>
   );
 }
