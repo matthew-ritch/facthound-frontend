@@ -102,6 +102,7 @@ export default function Page({
     const [replyText, setReplyText] = useState('');
     const [selectedQuestionId, setSelectedQuestionId] = useState<number | null>(null);
     const [error, setError] = useState('');
+    const [username, setUsername] = useState<string | undefined>(undefined);
     const [waitingForTransaction, setWaitingForTransaction] = useState(false);
     const [transactionType, setTransactionType] = useState<'answer' | 'select' | 'payout' | null>(null);
     const [transactionComplete, setTransactionComplete] = useState(false);
@@ -119,6 +120,11 @@ export default function Page({
     const router = useRouter();
     const { address } = useAccount();
     const [pendingTx, setPendingTx] = useState<`0x${string}` | null>(null);
+
+    useEffect(() => {
+        // Only access localStorage on the client side
+        setUsername(window.localStorage?.getItem('username') ?? undefined);
+    }, []);
 
     useEffect(() => {
         if (!pendingTx) return;
@@ -159,7 +165,7 @@ export default function Page({
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
-        if (localStorage.getItem('token') == null) {
+        if (window.localStorage?.getItem('token') == null) {
             router.push(`/login/`);
             return;
         }
@@ -261,15 +267,14 @@ export default function Page({
     };
 
     const handleSelectAnswer = async (questionId: number, answerId: number, questionAddress?: string, answerHash?: string) => {
-        if (!address) {
-            setError('Please connect your wallet');
-            return;
-        }
+        // For blockchain questions, require wallet connection
+        if (questionAddress && answerHash) {
+            if (!address) {
+                setError('Please connect your wallet');
+                return;
+            }
 
-        try {
-            if (questionAddress && answerHash) {
-                // Format the hash to ensure it's a proper bytes32
-                // Remove '0x' prefix if present and ensure it's 32 bytes (64 characters)
+            try {
                 const formattedHash = `0x${answerHash.replace('0x', '').padStart(64, '0')}` as `0x${string}`;
 
                 const contract = {
@@ -293,20 +298,29 @@ export default function Page({
                 setTransactionType('select');
                 setWaitingForTransaction(true);
                 writeContract(request);
-            } else {
-                // For non-blockchain questions, directly call the API
+            } catch (err: any) {
+                console.error('Select answer error:', err);
+                setError(err.message || 'Failed to select answer');
+            }
+        } else {
+            // For non-blockchain questions, just check if user is logged in
+            if (!window.localStorage?.getItem('token')) {
+                router.push('/login/');
+                return;
+            }
+
+            try {
                 await api.post('/questions/api/selection/', {
                     question: questionId,
                     answer: answerId
                 });
                 router.reload();
+            } catch (err: any) {
+                console.error('Select answer error:', err);
+                setError(err.message || 'Failed to select answer');
             }
-        } catch (err: any) {
-            console.error('Select answer error:', err);
-            setError(err.message || 'Failed to select answer');
         }
     };
-
 
     // Add effect to handle successful transactions
     useEffect(() => {
@@ -351,6 +365,7 @@ export default function Page({
                                 onAnswer={handleAnswer}
                                 onSelectAnswer={handleSelectAnswer}
                                 userAddress={address}
+                                userName={username}
                             />
                         ))}
                     </div>

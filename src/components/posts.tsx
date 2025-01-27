@@ -34,8 +34,13 @@ export default function Post({
     const isAnswerableQuestion = post.question_id && post.answer_id === null && onAnswer;
     const isAnswer = post.question_id !== null && post.answer_id !== null;
     const canSelectOnChain = post.question_id !== null && post.answer_id !== null && post.question_address && post.answer_hash && userAddress === post.asker_address;
-    const canSelectOffChain = post.question_id !== null && post.answer_id !== null && post.question_address && post.answer_hash && userName === post.asker_username;
-    console.log(post)
+    const canSelectOffChain = post.question_id !== null && 
+                             post.answer_id !== null && 
+                             !post.question_address && 
+                             !post.answer_hash && 
+                             userName && 
+                             userName === post.asker_username;
+    console.log(post, userAddress, userName)
     const handleClick = () => {
         if (isAnswerableQuestion && onAnswer) {
             onAnswer(post.question_id);
