@@ -28,13 +28,34 @@ export function Thread({
     thread,
 }: ThreadProps) {
     const parsed_date = new Date(thread.dt);
+    const formattedDate = parsed_date.toLocaleDateString(undefined, {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+    });
+    
     return (
-        <Link href={`/thread/${thread.id}`}>
+        <Link href={`/thread/${thread.id}`} style={{ textDecoration: 'none' }}>
             <div className={styles.card}>
-                <h4 className={styles.cardtitle}>{thread.topic}</h4>
-                <h5>{thread.first_poster_name ?? `${thread.first_poster_wallet.slice(0, 4)}...${thread.first_poster_wallet.slice(-4)}`} {parsed_date.toLocaleDateString()}</h5>
-                <h5>{thread.total_bounty_available ? `${formatEther((thread.total_bounty_available.toString()))} eth in` : 'No'} bounties available</h5>
-                <h5>{thread.total_bounty_claimed ? `${formatEther((thread.total_bounty_claimed.toString()))} eth in` : 'No'} bounties claimed</h5>
+                <h2 className={styles.cardTitle}>{thread.topic}</h2>
+                <div className={styles.cardMeta}>
+                    Posted by {thread.first_poster_name ?? 
+                        `${thread.first_poster_wallet.slice(0, 4)}...${thread.first_poster_wallet.slice(-4)}`
+                    } • {formattedDate}
+                </div>
+                <div className={styles.bountyInfo}>
+                    <div className={`${styles.bountyTag} ${styles.available}`}>
+                        {thread.total_bounty_available ? 
+                            `${formatEther((thread.total_bounty_available.toString()))} ETH Available` : 
+                            'No Bounty'
+                        }
+                    </div>
+                    {thread.total_bounty_claimed > 0 && (
+                        <div className={`${styles.bountyTag} ${styles.claimed}`}>
+                            {formatEther((thread.total_bounty_claimed.toString()))} ETH Claimed
+                        </div>
+                    )}
+                </div>
             </div>
         </Link>
     )

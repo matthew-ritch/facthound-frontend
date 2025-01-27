@@ -78,30 +78,75 @@
   margin: 1rem;
   padding: 1.5rem;
   text-align: left;
-  color: inherit;
+  color: #2c3e50;
   text-decoration: none;
-  border: 1px solid #eaeaea;
-  border-radius: 10px;
-  transition: color 0.15s ease, border-color 0.15s ease;
-  max-width: 350px;
+  border-radius: 12px;
+  transition: all 0.2s ease;
+  max-width: 600px;
+  width: 100%;
+  background: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .card:hover,
 .card:focus,
 .card:active {
-  color: #0d76fc;
-  border-color: #0d76fc;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border-color: transparent;
 }
 
 .card h2 {
-  margin: 0 0 1rem 0;
-  font-size: 1.2rem;
+  margin: 0 0 0.5rem 0;
+  font-size: 1.4rem;
+  color: #1a1a1a;
 }
 
 .card p {
   margin: 0;
-  font-size: 1.2rem;
+  font-size: 1rem;
   line-height: 1.5;
+}
+
+.cardTitle {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin-bottom: 0.75rem;
+}
+
+.cardMeta {
+  font-size: 0.9rem;
+  color: #666;
+  margin: 0.5rem 0;
+}
+
+.bountyInfo {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid #eee;
+}
+
+.bountyTag {
+  display: inline-flex;
+  align-items: center;
+  background: #f8f9fa;
+  padding: 0.25rem 0.75rem;
+  border-radius: 16px;
+  font-size: 0.875rem;
+  color: #2c3e50;
+}
+
+.bountyTag.available {
+  background: #e3f2fd;
+  color: #1976d2;
+}
+
+.bountyTag.claimed {
+  background: #e8f5e9;
+  color: #388e3c;
 }
 
 @media (max-width: 600px) {
@@ -144,23 +189,25 @@
 }
 
 .clickable {
-    cursor: pointer;
-    transition: background-color 0.2s;
-    border-left: 4px solid #4ca3af;
-    background-color: #4ca3af28;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-left: 4px solid #4ca3af;
+  background-color: #f8fafb;
 }
 
 .clickable:hover {
-    background-color: rgba(0, 0, 0, 0.05);
+  background-color: #f0f4f5;
 }
 
 .questionLabel {
-    font-size: 0.8em;
-    color: #666;
-    margin-top: 0.5em;
+  font-size: 0.875rem;
+  color: #666;
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid #eee;
 }
 
 .answerPost {
-    border-left: 4px solid #4CAF50;
-    background-color: rgba(76, 175, 80, 0.1);
+  border-left: 4px solid #4CAF50;
+  background-color: #f1f8f1;
 }
