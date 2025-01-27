@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { useRouter } from 'next/router';
 import api from '../utils/api';
 import styles from '../styles/Login.module.css';
-import { cookies } from 'next/headers'
 import Link from 'next/link'
 
 export default function Login() {
@@ -23,8 +22,10 @@ export default function Login() {
 
       // Django typically returns a token in response.data.token or response.data.access
       const token = response.access;
+      const refresh = response.refresh;
       if (token) {
         localStorage.setItem('token', token);
+        localStorage.setItem('refresh', refresh);
         localStorage.setItem('username', credentials.username);
         router.push("/")
       }
