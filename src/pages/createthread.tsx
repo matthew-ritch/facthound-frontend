@@ -35,6 +35,16 @@ const FACTORY_ABI = [
     {"type":"event","name":"QuestionCreated","inputs":[{"name":"_asker","type":"address","indexed":true,"internalType":"address"},{"name":"_questionAddress","type":"address","indexed":true,"internalType":"address"},{"name":"_bounty","type":"uint256","indexed":false,"internalType":"uint256"}],"anonymous":false}
 ] as const;
 
+// Add new state type at the top of the component
+const TransactionStates = {
+    IDLE: 'idle',
+    PREPARING: 'preparing',
+    AWAITING_SIGNATURE: 'awaiting_signature',
+    PENDING: 'pending',
+    SUCCESS: 'success',
+    ERROR: 'error'
+} as const;
+
 export default function CreateThread() {
     const [threadDetails, setThreadDetails] = useState({
         topic: '',
@@ -49,6 +59,8 @@ export default function CreateThread() {
     const { address } = useAccount();
     const { data: hash, isPending, writeContract } = useWriteContract();
     const [transactionSuccess, setTransactionSuccess] = useState(false);
+    const [transactionState, setTransactionState] = useState<typeof TransactionStates[keyof typeof TransactionStates]>(TransactionStates.IDLE);
+    const [transactionError, setTransactionError] = useState('');
 
     const createQuestionHash = () => {
         if (!address) return null;
@@ -60,47 +72,81 @@ export default function CreateThread() {
         );
     };
 
+    const resetTransactionState = () => {
+        setTransactionState(TransactionStates.IDLE);
+        setTransactionError('');
+        setWaitingForTransaction(false);
+        setTransactionSuccess(false); // Add this line
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         if (localStorage.getItem('token') == null) {
             router.push(`/login/`);
             return;
         }
         e.preventDefault();
+        setTransactionState(TransactionStates.PREPARING);
+        setTransactionError('');
 
         try {
             if (parseFloat(threadDetails.bounty) > 0) {
                 const questionHash = createQuestionHash();
-                const { request } = await simulateContract(config, {
-                    address: process.env.NEXT_PUBLIC_SEPOLIA_QUESTION_FACTORY as `0x${string}`,
-                    abi: FACTORY_ABI,
-                    functionName: 'createQuestion',
-                    args: [questionHash ? questionHash : "0x"],
-                    value: parseUnits(threadDetails.bounty, "ether")
-                });
+                
+                // Set awaiting signature state before simulation
+                setTransactionState(TransactionStates.AWAITING_SIGNATURE);
 
-                setWaitingForTransaction(true);
-                const unwatch = publicClient.watchContractEvent({
-                    address: process.env.NEXT_PUBLIC_SEPOLIA_QUESTION_FACTORY as `0x${string}`,
-                    abi: FACTORY_ABI,
-                    eventName: 'QuestionCreated',
-                    onLogs: async (logs) => {
-                        const log = logs[0];
-                        if (log) {
-                            try {
-                                await submitToApi(log.args._questionAddress as string);
-                                setTransactionSuccess(true);
-                            } catch (err) {
-                                console.error('API submission failed:', err);
-                                setError('Failed to submit question to API');
-                            } finally {
-                                setWaitingForTransaction(false);
-                                unwatch(); // Stop watching for events
+                try {
+                    const { request } = await simulateContract(config, {
+                        address: process.env.NEXT_PUBLIC_SEPOLIA_QUESTION_FACTORY as `0x${string}`,
+                        abi: FACTORY_ABI,
+                        functionName: 'createQuestion',
+                        args: [questionHash ? questionHash : "0x"],
+                        value: parseUnits(threadDetails.bounty, "ether")
+                    });
+
+                    
+
+                    const unwatch = publicClient.watchContractEvent({
+                        address: process.env.NEXT_PUBLIC_SEPOLIA_QUESTION_FACTORY as `0x${string}`,
+                        abi: FACTORY_ABI,
+                        eventName: 'QuestionCreated',
+                        onLogs: async (logs) => {
+                            const log = logs[0];
+                            if (log) {
+                                try {
+                                    await submitToApi(log.args._questionAddress as string);
+                                    setTransactionSuccess(true);
+                                    setTransactionState(TransactionStates.SUCCESS);
+                                } catch (err) {
+                                    console.error('API submission failed:', err);
+                                    setError('Failed to submit question to API');
+                                    setTransactionState(TransactionStates.ERROR);
+                                } finally {
+                                    setWaitingForTransaction(false);
+                                    unwatch(); // Stop watching for events
+                                }
                             }
-                        }
-                    },
-                });
+                        },
+                    });
 
-                writeContract(request);
+                    setTransactionState(TransactionStates.AWAITING_SIGNATURE);
+                    
+                    const txHash = await writeContract(request);
+                    // After signature, set to pending state
+                    setTransactionState(TransactionStates.PENDING);
+                    
+                } catch (err: any) {
+                    // Handle user rejection or other wallet errors
+                    console.error('Transaction error:', err);
+                    if (err.message.includes('User rejected') || err.code === 'ACTION_REJECTED') {
+                        setTransactionError('Transaction was rejected');
+                        resetTransactionState();
+                    } else {
+                        setTransactionState(TransactionStates.ERROR);
+                        setTransactionError(err.message || 'Transaction failed');
+                    }
+                    return;
+                }
                 return;
             }
 
@@ -109,6 +155,8 @@ export default function CreateThread() {
 
         } catch (err: any) {
             setWaitingForTransaction(false); // Reset waiting state on error
+            setTransactionState(TransactionStates.ERROR);
+            setTransactionError(err.message || 'Transaction failed');
             setError(
                 err.message ||
                 err.response?.data?.detail ||
@@ -137,10 +185,64 @@ export default function CreateThread() {
     // Replace the previous useEffect with this simpler version
     useEffect(() => {
         return () => {
-            // Cleanup effect
-            setWaitingForTransaction(false);
+            resetTransactionState();
         };
     }, []);
+
+    // Replace the existing transaction status section with this new one
+    const renderTransactionStatus = () => {
+        switch (transactionState) {
+            case TransactionStates.PREPARING:
+                return (
+                    <div className={styles.transactionStatus}>
+                        <div className={styles.statusMessage}>
+                            Preparing your transaction...
+                        </div>
+                    </div>
+                );
+            case TransactionStates.AWAITING_SIGNATURE:
+                return (
+                    <div className={styles.transactionStatus}>
+                        <div className={styles.statusMessage}>
+                            Please sign the transaction in your wallet...
+                        </div>
+                    </div>
+                );
+            case TransactionStates.PENDING:
+                return (
+                    <div className={styles.transactionStatus}>
+                        <div className={styles.statusMessage}>
+                            Transaction in progress...
+                            {hash && <div className={styles.hashDisplay}> 
+                                Transaction Hash: <a href={`https://sepolia.basescan.org/tx/${hash}`} 
+                                                   target="_blank" 
+                                                   rel="noopener noreferrer">
+                                    {`${hash.substring(0, 6)}...${hash.substring(hash.length - 4)}`}
+                                </a>
+                            </div>}
+                        </div>
+                    </div>
+                );
+            case TransactionStates.SUCCESS:
+                return (
+                    <div className={`${styles.transactionStatus} ${styles.success}`}>
+                        <div className={styles.statusMessage}>
+                            Transaction Successful! ✓
+                        </div>
+                    </div>
+                );
+            case TransactionStates.ERROR:
+                return (
+                    <div className={`${styles.transactionStatus} ${styles.error}`}>
+                        <div className={styles.statusMessage}>
+                            Transaction Failed: {transactionError}
+                        </div>
+                    </div>
+                );
+            default:
+                return null;
+        }
+    };
 
     return (
         <div className={styles.container}>
@@ -200,12 +302,13 @@ export default function CreateThread() {
                         })}
                     />
                 </div>
-                <button type="submit">Create Thread</button>
-
+                <button type="submit" disabled={transactionState !== TransactionStates.IDLE}>
+                    {transactionState === TransactionStates.IDLE ? 'Create Thread' : 'Processing...'}
+                </button>
             </form>
-            {hash && <div>Transaction Hash: {hash}</div>}
-            {isPending && <div>Waiting for confirmation...</div>}
-            {transactionSuccess && <div>Transaction Confirmed!</div>}
+            
+            {renderTransactionStatus()}
+            
             <div className={styles.linkdiv}>
                 <Link href={`..`} className={styles.buttonlink}>
                     Home
