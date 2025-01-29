@@ -22,7 +22,7 @@ export default function Home({
 
     setIsSearching(true);
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/questions/api/search/?search_string=${encodeURIComponent(searchTerm)}`);
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/questions/search/?search_string=${encodeURIComponent(searchTerm)}`);
       const data = await res.json();
       setSearchResults(data.threads);
     } catch (error) {
@@ -75,7 +75,7 @@ export default function Home({
 
 export async function getServerSideProps() {
   // Fetch data from external API
-  const res = await fetch(process.env.BACKEND_URL + `/questions/api/threadlist`);
+  const res = await fetch(process.env.BACKEND_URL + `/api/questions/threadlist`);
   const data = await res.json();
   // Pass data to the page via props
   return { props: { threads: data } };

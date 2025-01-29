@@ -17,7 +17,7 @@ export default function CreateUser() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            const response = await api.post('/auth/api/register/', {
+            const response = await api.post('/api/auth/register/', {
                 username: credentials.username,
                 email: credentials.email,
                 password: credentials.password,

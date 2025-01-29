@@ -168,7 +168,7 @@ export default function CreateThread() {
 
     // New function to handle API submission
     const submitToApi = async (contractAddress: string | undefined) => {
-        const response = await api.post('/questions/api/question/', {
+        const response = await api.post('/api/questions/question/', {
             topic: threadDetails.topic,
             text: threadDetails.text,
             tags: threadDetails.tags.split(',').map(tag => tag.trim()),

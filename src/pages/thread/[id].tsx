@@ -29,7 +29,7 @@ export async function getServerSideProps(context: Context) {
     const { params } = context;
     const threadId = params?.id;
     // Fetch data from external API
-    const res = await fetch(process.env.BACKEND_URL + `/questions/api/thread?threadId=${threadId}`);
+    const res = await fetch(process.env.BACKEND_URL + `/api/questions/thread?threadId=${threadId}`);
     const thread: Thread = await res.json();
     // Pass data to the page via props
     return { props: { thread } };
@@ -249,7 +249,7 @@ export default function Page({
 
 
         const response = await api.post(
-            selectedQuestionId ? '/questions/api/answer/' : '/questions/api/post/',
+            selectedQuestionId ? '/api/questions/answer/' : '/api/questions/post/',
             payload
         );
 
@@ -311,7 +311,7 @@ export default function Page({
             }
 
             try {
-                await api.post('/questions/api/selection/', {
+                await api.post('/api/questions/selection/', {
                     question: questionId,
                     answer: answerId
                 });
@@ -332,7 +332,7 @@ export default function Page({
                 switch (transactionType) {
                     case 'select':
                         if (selectedAnswerProps.questionId) {
-                            await api.post('/questions/api/selection/', {
+                            await api.post('/api/questions/selection/', {
                                 question: selectedAnswerProps.questionId,
                                 answer: selectedAnswerProps.answerId
                             });

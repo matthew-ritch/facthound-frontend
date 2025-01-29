@@ -22,7 +22,7 @@ function App({ Component, pageProps }: AppProps) {
   const [AUTHENTICATION_STATUS, SET_AUTHENTICATION_STATUS] = useState<AuthenticationStatus>("loading")
   const authenticationAdapter = createAuthenticationAdapter({
     getNonce: async () => {
-      const response = await api.get('/auth/api/get_nonce/');
+      const response = await api.get('/api/auth/get_nonce/');
       return await response.nonce;
     },
     createMessage: ({ nonce, address, chainId }) => {
@@ -38,7 +38,7 @@ function App({ Component, pageProps }: AppProps) {
     },
     verify: async ({ message, signature }) => {
       const data = { message, signed_message: signature }
-      const verifyRes = await api.post('/auth/api/siwetoken/', data)
+      const verifyRes = await api.post('/api/auth/siwetoken/', data)
       localStorage.setItem('token', verifyRes.access)
       SET_AUTHENTICATION_STATUS('authenticated')
       return Boolean(verifyRes.access ? true : false);
