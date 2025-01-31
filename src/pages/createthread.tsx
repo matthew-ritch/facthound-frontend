@@ -296,6 +296,8 @@ export default function CreateThread() {
                         min="0"
                         id="bounty"
                         value={threadDetails.bounty}
+                        disabled={address == null}
+                        title={address == null ? "Connect a wallet to post a bounty" : ""}
                         onChange={(e) => setThreadDetails({
                             ...threadDetails,
                             bounty: e.target.value
