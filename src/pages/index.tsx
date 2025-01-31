@@ -44,16 +44,16 @@ export default function Home({
       </Head>
       <Navbar config={config} />
       <main className={styles.main}>
-        <h1 className={styles.title}>
-          Welcome to FactHound
-        </h1>
+        <Link href={`/createthread`} className={styles.buttonlink}>
+          Ask a question
+        </Link>
         <div className={styles.searchContainer}>
           <form onSubmit={handleSearch}>
             <input
               type="text"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Search questions and answers..."
+              placeholder="Search questions..."
               className={styles.searchInput}
             />
             <button type="submit" disabled={isSearching}>
