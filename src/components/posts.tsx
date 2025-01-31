@@ -1,4 +1,5 @@
 import styles from '../styles/Home.module.css';
+import { formatEther } from "ethers";
 
 export interface PostInfo {
     id: number;
@@ -9,6 +10,7 @@ export interface PostInfo {
     poster_wallet: string;
     question_id: number;
     question_address: string;
+    bounty: number | null;
     asker_address: string;
     asker_username: string;
     answer_status: string;
@@ -66,6 +68,9 @@ export default function Post({
             {(post.question_id !== null && post.answer_id === null) && (
                 <div className={styles.questionLabel}>
                     Question {post.question_id}. Click to answer
+                    {post.bounty && post.bounty > 0 && (
+                        <div>Bounty: {formatEther(post.bounty)} ETH</div>
+                    )}
                 </div>
             )}
             {(post.question_id !== null && post.answer_id !== null) && (
