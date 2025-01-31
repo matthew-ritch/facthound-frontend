@@ -338,3 +338,24 @@
   border-radius: 12px;
   font-size: 0.8rem;
 }
+
+.loginContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+}
+
+@media screen and (max-width: 768px) {
+  .loginContainer {
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: center;
+  }
+  
+  .buttonlink {
+    margin-left: 0;
+    padding: 0.5rem;
+    font-size: 0.9rem;
+  }
+}

@@ -24,14 +24,14 @@ export function LoginButtons({
     if (!mounted) return null;
     if (username) {
         return (
-            <div className={styles.grid}>
+            <div className={`${styles.grid} ${styles.loginContainer}`}>
                 <p className={styles.series}>{username}</p>
                 <button className={styles.buttonlink} onClick={async () => { localStorage.removeItem('username'); localStorage.removeItem('token'); setUsername(null) }}>Logout</button>
             </div>
         )
     }
     return (
-        <div className={styles.grid}>
+        <div className={`${styles.grid} ${styles.loginContainer}`}>
             <div>
                 <ConnectButton />
             </div>

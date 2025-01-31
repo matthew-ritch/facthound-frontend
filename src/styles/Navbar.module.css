@@ -42,3 +42,26 @@
   display: flex;
   justify-content: flex-end;
 }
+
+/* Add these media queries at the end of the file */
+@media screen and (max-width: 768px) {
+  .logo {
+    font-size: 1.2rem;
+  }
+
+  .navLink {
+    font-size: 1.2rem;
+    margin: 0 0.5rem;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .logo {
+    font-size: 1rem;
+  }
+
+  .navLink {
+    font-size: 1rem;
+    margin: 0 0.25rem;
+  }
+}
