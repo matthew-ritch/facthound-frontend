@@ -43,6 +43,19 @@
   justify-content: flex-end;
 }
 
+.actionLink {
+  background-color: #007bff;
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  text-decoration: none;
+  transition: background-color 0.2s;
+}
+
+.actionLink:hover {
+  background-color: #0056b3;
+}
+
 /* Add these media queries at the end of the file */
 @media screen and (max-width: 768px) {
   .logo {

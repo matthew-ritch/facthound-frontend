@@ -1,5 +1,6 @@
 .container {
   padding: 0 2rem;
+  margin-top: 1rem;
 }
 
 .main {
@@ -10,7 +11,7 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  padding-top: 80px;
+  padding-top: var(--navbar-height);
   /* Add this line to create space for the fixed navbar */
 }
 

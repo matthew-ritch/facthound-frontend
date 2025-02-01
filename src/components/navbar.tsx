@@ -16,7 +16,7 @@ export function Navbar({ config }: NavbarProps) {
         </Link>
       </div>
       <div className={styles.navLinks}>
-        <Link href="/createthread" className={styles.navLink}>
+        <Link href="/createthread" className={`${styles.navLink} ${styles.actionLink}`}>
           Ask a Question
         </Link>
       </div>

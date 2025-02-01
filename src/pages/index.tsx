@@ -43,10 +43,7 @@ export default function Home({
         <link href="static/favicon.ico" rel="icon" />
       </Head>
       <Navbar config={config} />
-      <main className={styles.main}>
-        <Link href={`/createthread`} className={styles.buttonlink}>
-          Ask a question
-        </Link>
+      <main className={styles.main} >
         <div className={styles.searchContainer}>
           <form onSubmit={handleSearch}>
             <input

@@ -1,3 +1,7 @@
+:root {
+  --navbar-height: 70px;
+}
+
 html,
 body {
   padding: 0;
