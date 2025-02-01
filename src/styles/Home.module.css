@@ -360,3 +360,25 @@
     font-size: 0.9rem;
   }
 }
+
+.marquee {
+  width: 100%;
+  padding: 8px 0;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.marquee p {
+  display: inline-block;
+  animation: marquee 18s linear infinite;
+  padding-left: 100%;
+}
+
+@keyframes marquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}

@@ -6,6 +6,25 @@ import { Navbar } from '../components/navbar';
 import Link from 'next/link';
 import { useState } from 'react';
 
+const factHoundSlogans = [
+  "FactHound is a truth-seeking missile.",
+  "We are your zoomer brother's favorite information broker.",
+  "Light, in the absence of eyes, illuminates nothing.",
+  "Total information awareness; equal opportunity enforcement.",
+  "FactHound is an information clearinghouse.",
+  "FactHound is an information bounty hunter.",
+  "FactHound is the world's most profitable bulletin board.",
+  "The truth is out there, and it's for hire.",
+  "If ideas are viruses, then truth is an inoculation.",
+  "Information wants to be free, but somebody needs to pay its bail.",
+  "Bust down the Pareto front.",
+  "Truth grows on trees.",
+  "FactHound is an information market.",
+  "FactHound is the only forum that matters.",
+  "FactHound is a truth-seeking missile.",
+];
+const marqueeText = factHoundSlogans.join('       ');
+
 export default function Home({
   threads,
 }: ThreadListProps) {
@@ -44,6 +63,9 @@ export default function Home({
       </Head>
       <Navbar config={config} />
       <main className={styles.main} >
+        <div className={styles.marquee}>
+            <p>{marqueeText}</p>
+        </div>
         <div className={styles.searchContainer}>
           <form onSubmit={handleSearch}>
             <input
