@@ -23,6 +23,7 @@ interface Context {
 
 interface Thread {
     threadId: number,
+    threadTopic: string,
     posts: Array<PostInfo>
 }
 
@@ -367,6 +368,10 @@ export default function Page({
             <Navbar config={config} />
             <main className={styles.main}>
                 <div className={styles.container}>
+                    <div className={styles.threadTitle}>
+                        <h1>{thread.threadTopic}</h1>
+                        <hr className={styles.divider} />
+                    </div>
                     <div className={styles.thread}>
                         {thread.posts.map(k => (
                             <Post
