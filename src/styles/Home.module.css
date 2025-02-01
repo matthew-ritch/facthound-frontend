@@ -366,6 +366,7 @@
   padding: 8px 0;
   overflow: hidden;
   white-space: nowrap;
+  margin-top: 1rem;
 }
 
 .marquee p {
