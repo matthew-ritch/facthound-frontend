@@ -10,10 +10,11 @@ import Link from 'next/link';
 import { config } from '../wagmi';
 import { Navbar } from '../components/navbar';
 import { parseUnits } from "ethers";
+import Head from 'next/head';
 
 const FACTORY_ABI = [
-    {"type":"constructor","inputs":[{"name":"_oracle","type":"address","internalType":"address"},{"name":"_asker_fee_per_10000","type":"uint16","internalType":"uint16"}],"stateMutability":"nonpayable"},
-    {"type":"function","name":"asker_fee_per_10000","inputs":[],"outputs":[{"name":"","type":"uint16","internalType":"uint16"}],"stateMutability":"view"},
+    { "type": "constructor", "inputs": [{ "name": "_oracle", "type": "address", "internalType": "address" }, { "name": "_asker_fee_per_10000", "type": "uint16", "internalType": "uint16" }], "stateMutability": "nonpayable" },
+    { "type": "function", "name": "asker_fee_per_10000", "inputs": [], "outputs": [{ "name": "", "type": "uint16", "internalType": "uint16" }], "stateMutability": "view" },
     {
         "type": "function",
         "name": "createQuestion",
@@ -27,12 +28,12 @@ const FACTORY_ABI = [
         "outputs": [], // Changed this - function doesn't return anything
         "stateMutability": "payable"
     },
-    {"type":"function","name":"getQuestion","inputs":[{"name":"","type":"bytes32","internalType":"bytes32"}],"outputs":[{"name":"","type":"address","internalType":"address"}],"stateMutability":"view"},
-    {"type":"function","name":"oracle","inputs":[],"outputs":[{"name":"","type":"address","internalType":"address"}],"stateMutability":"view"},
-    {"type":"function","name":"owner","inputs":[],"outputs":[{"name":"","type":"address","internalType":"address"}],"stateMutability":"view"},
-    {"type":"function","name":"setOwner","inputs":[{"name":"_owner","type":"address","internalType":"address"}],"outputs":[],"stateMutability":"nonpayable"},
-    {"type":"function","name":"widthdraw","inputs":[],"outputs":[],"stateMutability":"nonpayable"},
-    {"type":"event","name":"QuestionCreated","inputs":[{"name":"_asker","type":"address","indexed":true,"internalType":"address"},{"name":"_questionAddress","type":"address","indexed":true,"internalType":"address"},{"name":"_bounty","type":"uint256","indexed":false,"internalType":"uint256"}],"anonymous":false}
+    { "type": "function", "name": "getQuestion", "inputs": [{ "name": "", "type": "bytes32", "internalType": "bytes32" }], "outputs": [{ "name": "", "type": "address", "internalType": "address" }], "stateMutability": "view" },
+    { "type": "function", "name": "oracle", "inputs": [], "outputs": [{ "name": "", "type": "address", "internalType": "address" }], "stateMutability": "view" },
+    { "type": "function", "name": "owner", "inputs": [], "outputs": [{ "name": "", "type": "address", "internalType": "address" }], "stateMutability": "view" },
+    { "type": "function", "name": "setOwner", "inputs": [{ "name": "_owner", "type": "address", "internalType": "address" }], "outputs": [], "stateMutability": "nonpayable" },
+    { "type": "function", "name": "widthdraw", "inputs": [], "outputs": [], "stateMutability": "nonpayable" },
+    { "type": "event", "name": "QuestionCreated", "inputs": [{ "name": "_asker", "type": "address", "indexed": true, "internalType": "address" }, { "name": "_questionAddress", "type": "address", "indexed": true, "internalType": "address" }, { "name": "_bounty", "type": "uint256", "indexed": false, "internalType": "uint256" }], "anonymous": false }
 ] as const;
 
 // Add new state type at the top of the component
@@ -91,7 +92,7 @@ export default function CreateThread() {
         try {
             if (parseFloat(threadDetails.bounty) > 0) {
                 const questionHash = createQuestionHash();
-                
+
                 // Set awaiting signature state before simulation
                 setTransactionState(TransactionStates.AWAITING_SIGNATURE);
 
@@ -104,7 +105,7 @@ export default function CreateThread() {
                         value: parseUnits(threadDetails.bounty, "ether")
                     });
 
-                    
+
 
                     const unwatch = publicClient.watchContractEvent({
                         address: process.env.NEXT_PUBLIC_SEPOLIA_QUESTION_FACTORY as `0x${string}`,
@@ -130,11 +131,11 @@ export default function CreateThread() {
                     });
 
                     setTransactionState(TransactionStates.AWAITING_SIGNATURE);
-                    
+
                     const txHash = await writeContract(request);
                     // After signature, set to pending state
                     setTransactionState(TransactionStates.PENDING);
-                    
+
                 } catch (err: any) {
                     // Handle user rejection or other wallet errors
                     console.error('Transaction error:', err);
@@ -213,10 +214,10 @@ export default function CreateThread() {
                     <div className={styles.transactionStatus}>
                         <div className={styles.statusMessage}>
                             Transaction in progress...
-                            {hash && <div className={styles.hashDisplay}> 
-                                Transaction Hash: <a href={`https://sepolia.basescan.org/tx/${hash}`} 
-                                                   target="_blank" 
-                                                   rel="noopener noreferrer">
+                            {hash && <div className={styles.hashDisplay}>
+                                Transaction Hash: <a href={`https://sepolia.basescan.org/tx/${hash}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer">
                                     {`${hash.substring(0, 6)}...${hash.substring(hash.length - 4)}`}
                                 </a>
                             </div>}
@@ -246,6 +247,14 @@ export default function CreateThread() {
 
     return (
         <div className={styles.container}>
+            <Head>
+                <title>FactHound</title>
+                <meta
+                    content="FactHound"
+                    name="FactHound"
+                />
+                <link href="static/favicon.ico" rel="icon" />
+            </Head>
             <Navbar config={config} />
             <form className={styles.form} onSubmit={handleSubmit}>
                 <h1>Ask a Question</h1>
@@ -308,9 +317,9 @@ export default function CreateThread() {
                     {transactionState === TransactionStates.IDLE ? 'Create Thread' : 'Processing...'}
                 </button>
             </form>
-            
+
             {renderTransactionStatus()}
-            
+
             <div className={styles.linkdiv}>
                 <Link href={`..`} className={styles.buttonlink}>
                     Home

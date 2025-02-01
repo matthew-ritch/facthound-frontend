@@ -42,7 +42,6 @@ export default function Post({
                              !post.answer_hash && 
                              userName && 
                              userName === post.asker_username;
-    console.log(post, userAddress, userName)
     const handleClick = () => {
         if (isAnswerableQuestion && onAnswer) {
             onAnswer(post.question_id);

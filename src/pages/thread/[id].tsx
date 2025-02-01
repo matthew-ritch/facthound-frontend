@@ -11,6 +11,7 @@ import { useAccount, useWriteContract } from 'wagmi';
 import { simulateContract } from '@wagmi/core'
 import { encodePacked, keccak256 } from 'viem';
 import { publicClient } from '../../client';
+import Head from 'next/head';
 
 interface Params {
     id: string;
@@ -355,6 +356,14 @@ export default function Page({
 
     return (
         <div className={styles.container}>
+            <Head>
+                <title>FactHound</title>
+                <meta
+                    content="FactHound"
+                    name="FactHound"
+                />
+                <link href="static/favicon.ico" rel="icon" />
+            </Head>
             <Navbar config={config} />
             <main className={styles.main}>
                 <div className={styles.container}>
