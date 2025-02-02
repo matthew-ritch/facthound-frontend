@@ -55,7 +55,7 @@ export function Thread({
                     </div>
                 )}
                 <div className={styles.bountyInfo}>
-                    <div className={`${styles.bountyTag} ${styles.available}`}>
+                    <div className={`${styles.bountyTag} ${thread.total_bounty_available>0 ?styles.available : null}`}>
                         {thread.total_bounty_available ? 
                             `${formatEther((thread.total_bounty_available.toString()))} ETH Available` : 
                             'No Bounty'
