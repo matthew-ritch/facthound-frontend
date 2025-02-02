@@ -29,6 +29,7 @@ const marqueeText = factHoundSlogans.join('       ');
 
 export default function Home({
   threads,
+  eth_price,
 }: ThreadListProps) {
   const [searchResults, setSearchResults] = useState(threads.threads);
   const [searchTerm, setSearchTerm] = useState('');
@@ -86,7 +87,7 @@ export default function Home({
           {searchResults.length === 0 ? (
             <p>No results found</p>
           ) : (
-            <ThreadList threads={{ threads: searchResults }} />
+            <ThreadList threads={{ threads: searchResults }} eth_price={eth_price} />
           )}
         </div>
       </main>
@@ -95,9 +96,21 @@ export default function Home({
 }
 
 export async function getServerSideProps() {
-  // Fetch data from external API
+  // Fetch thread data from external API
   const res = await fetch(process.env.BACKEND_URL + `/api/questions/threadlist`);
   const data = await res.json();
+  // Fetch eth price from alchemy
+  const url = 'https://api.g.alchemy.com/prices/v1/tokens/by-symbol?symbols=ETH&symbols=USDC&symbols=BTC';
+  const headers = {
+      'Accept': 'application/json',
+      'Authorization': `Bearer ${process.env.ALCHEMY_API_KEY}`
+  };
+  const prices = await fetch(url, {
+      method: 'GET',
+      headers: headers
+  })
+  const priceinfo = await prices.json();
+  const eth_price = priceinfo.data[0].prices[0].value;
   // Pass data to the page via props
-  return { props: { threads: data } };
+  return { props: { threads: data, eth_price: eth_price } };
 }

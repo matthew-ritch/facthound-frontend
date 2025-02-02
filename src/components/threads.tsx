@@ -1,6 +1,6 @@
 import styles from '../styles/Home.module.css';
 import Link from 'next/link'
-import { formatEther } from "ethers";
+import { formatUnits } from "ethers";
 
 export interface ThreadInfo {
     id: number;
@@ -15,6 +15,7 @@ export interface ThreadInfo {
 
 type ThreadProps = {
     thread: ThreadInfo;
+    eth_price: number;
 }
 
 interface ThreadList {
@@ -23,13 +24,15 @@ interface ThreadList {
 
 export type ThreadListProps = {
     threads: ThreadList;
+    eth_price: number;
 }
 
 export function Thread({
     thread,
+    eth_price
 }: ThreadProps) {
-    const parsed_date = thread.dt.endsWith('Z') ? 
-        new Date(thread.dt) : 
+    const parsed_date = thread.dt.endsWith('Z') ?
+        new Date(thread.dt) :
         new Date(thread.dt + 'Z');
 
     const formattedDate = parsed_date.toLocaleDateString(undefined, {
@@ -37,33 +40,35 @@ export function Thread({
         month: 'short',
         day: 'numeric'
     });
-    
+    console.log(eth_price);
+    thread.total_bounty_available && console.log(formatUnits(thread.total_bounty_available, "ether"));
+    thread.total_bounty_available && console.log();
     return (
         <Link href={`/thread/${thread.id}`} style={{ textDecoration: 'none' }}>
             <div className={styles.card}>
                 <h2 className={styles.cardTitle}>{thread.topic}</h2>
                 <div className={styles.cardMeta}>
-                    Posted by {thread.first_poster_name ?? 
+                    Posted by {thread.first_poster_name ??
                         `${thread.first_poster_wallet.slice(0, 4)}...${thread.first_poster_wallet.slice(-4)}`
                     } • {formattedDate}
                 </div>
                 {thread.tags && thread.tags.length > 0 && (
                     <div className={styles.tagContainer}>
                         {thread.tags.map((tag, index) => (
-                            tag!=''?<span key={index} className={styles.tag}>{tag}</span>:null
+                            tag != '' ? <span key={index} className={styles.tag}>{tag}</span> : null
                         ))}
                     </div>
                 )}
                 <div className={styles.bountyInfo}>
-                    <div className={`${styles.bountyTag} ${thread.total_bounty_available>0 ?styles.available : null}`}>
-                        {thread.total_bounty_available ? 
-                            `${formatEther((thread.total_bounty_available.toString()))} ETH Available` : 
+                    <div className={`${styles.bountyTag} ${thread.total_bounty_available > 0 ? styles.available : null}`}>
+                        {thread.total_bounty_available ?
+                            `\$${(eth_price * parseFloat(formatUnits(thread.total_bounty_available, "ether"))).toFixed(2)} USD Available` :
                             'No Bounty'
                         }
                     </div>
                     {thread.total_bounty_claimed > 0 && (
                         <div className={`${styles.bountyTag} ${styles.claimed}`}>
-                            {formatEther((thread.total_bounty_claimed.toString()))} ETH Claimed
+                            {`\$${(eth_price * parseFloat(formatUnits(thread.total_bounty_available, "ether"))).toFixed(2)} USD Available`}
                         </div>
                     )}
                 </div>
@@ -74,11 +79,12 @@ export function Thread({
 
 export function ThreadList({
     threads,
+    eth_price
 }: ThreadListProps) {
     return (
         <main>
             <div className={styles.threads}>
-                {threads.threads.map(k => <Thread thread={k} key={k.id}/>)}
+                {threads.threads.map(k => <Thread thread={k} key={k.id} eth_price={eth_price} />)}
             </div>
         </main>
     )

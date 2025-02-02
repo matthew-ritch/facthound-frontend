@@ -1,5 +1,5 @@
 import styles from '../styles/Home.module.css';
-import { formatEther } from "ethers";
+import { formatUnits } from "ethers";
 
 export interface PostInfo {
     id: number;
@@ -20,6 +20,7 @@ export interface PostInfo {
 
 type PostProps = {
     post: PostInfo;
+    eth_price: number;
     onAnswer?: (questionId: number) => void;
     onSelectAnswer?: (questionId: number, answerId: number, questionAddress?: string, answerHash?: string) => void;
     userAddress?: string;
@@ -71,6 +72,7 @@ function formatDateTime(dateStr: string) {
 
 export default function Post({
     post,
+    eth_price,
     onAnswer,
     onSelectAnswer,
     userAddress,
@@ -108,12 +110,14 @@ export default function Post({
             style={{ wordWrap: 'break-word', wordBreak: 'break-word' }}
         >
             {post.poster_name ?? `${post.poster_wallet.slice(0, 4)}...${post.poster_wallet.slice(-4)}`} 
-            <span className={styles.dateTime}>({formatDateTime(post.dt)})</span>: {convertUrlsToLinks(post.text)}
+            <span className={styles.dateTime}>({formatDateTime(post.dt)})</span>:
+            <br/>
+            {convertUrlsToLinks(post.text)}
             {(post.question_id !== null && post.answer_id === null) && (
                 <div className={styles.questionLabel}>
                     Question {post.question_id}. Click to answer
                     {post.bounty && post.bounty > 0 && (
-                        <div>Bounty: {formatEther(post.bounty)} ETH</div>
+                        <div>Bounty: ${(eth_price * parseFloat(formatUnits(post.bounty, "ether"))).toFixed(2)} USD</div>
                     )}
                 </div>
             )}

@@ -33,8 +33,20 @@ export async function getServerSideProps(context: Context) {
     // Fetch data from external API
     const res = await fetch(process.env.BACKEND_URL + `/api/questions/thread?threadId=${threadId}`);
     const thread: Thread = await res.json();
+    // Fetch eth price from alchemy
+    const url = 'https://api.g.alchemy.com/prices/v1/tokens/by-symbol?symbols=ETH&symbols=USDC&symbols=BTC';
+    const headers = {
+        'Accept': 'application/json',
+        'Authorization': `Bearer ${process.env.ALCHEMY_API_KEY}`
+    };
+    const prices = await fetch(url, {
+        method: 'GET',
+        headers: headers
+    })
+    const priceinfo = await prices.json();
+    const eth_price = priceinfo.data[0].prices[0].value;
     // Pass data to the page via props
-    return { props: { thread } };
+    return { props: { thread, eth_price } };
 }
 
 const QUESTION_ABI = [
@@ -100,6 +112,7 @@ const QUESTION_ABI = [
 
 export default function Page({
     thread,
+    eth_price
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
     const [replyText, setReplyText] = useState('');
     const [selectedQuestionId, setSelectedQuestionId] = useState<number | null>(null);
@@ -376,6 +389,7 @@ export default function Page({
                         {thread.posts.map(k => (
                             <Post
                                 post={k}
+                                eth_price={eth_price}
                                 key={k.id}
                                 onAnswer={handleAnswer}
                                 onSelectAnswer={handleSelectAnswer}
