@@ -21,7 +21,7 @@ export const config = getDefaultConfig({
   transports: {
     // [mainnet.id]: http('https://eth-mainnet.g.alchemy.com/v2/J5VbtLhS-VFrpXkxRWPX9XbNIOOcmI_K'),
     // [base.id]: http("https://base-mainnet.g.alchemy.com/v2/J5VbtLhS-VFrpXkxRWPX9XbNIOOcmI_K"),
-    [baseSepolia.id]: http("https://base-mainnet.g.alchemy.com/v2/J5VbtLhS-VFrpXkxRWPX9XbNIOOcmI_K"),
+    [baseSepolia.id]: http("https://base-sepolia.g.alchemy.com/v2/J5VbtLhS-VFrpXkxRWPX9XbNIOOcmI_K"),
 },
   ssr: true,
 });
