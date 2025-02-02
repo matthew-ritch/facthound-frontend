@@ -1,0 +1,29 @@
+.post {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.postContent {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.postText {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+@media (max-width: 768px) {
+  .post {
+    padding: 0.75rem;
+  }
+  
+  .postMetadata {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+}
