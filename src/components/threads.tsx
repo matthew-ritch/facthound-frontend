@@ -68,7 +68,7 @@ export function Thread({
                     </div>
                     {thread.total_bounty_claimed > 0 && (
                         <div className={`${styles.bountyTag} ${styles.claimed}`}>
-                            {`\$${(eth_price * parseFloat(formatUnits(thread.total_bounty_available, "ether"))).toFixed(2)} USD Available`}
+                            {`\$${(eth_price * parseFloat(formatUnits(thread.total_bounty_claimed, "ether"))).toFixed(2)} USD Claimed`}
                         </div>
                     )}
                 </div>
