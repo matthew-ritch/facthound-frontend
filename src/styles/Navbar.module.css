@@ -71,6 +71,27 @@
   background-color: #0056b3;
 }
 
+.hamburger {
+  display: none;
+  flex-direction: column;
+  cursor: pointer;
+  padding: 4px;
+  background: none;
+  border: none;
+}
+
+.hamburger span {
+  width: 25px;
+  height: 2px;
+  background-color: #333;
+  margin: 4px 0;
+  transition: 0.4s;
+}
+
+.mobileMenu {
+  display: none;
+}
+
 /* Add these media queries at the end of the file */
 @media screen and (max-width: 768px) {
   .logo {
@@ -80,6 +101,125 @@
   .navLink {
     font-size: 1.2rem;
     margin: 0 0.5rem;
+  }
+
+  .hamburger {
+    display: flex;
+    z-index: 1001;
+  }
+
+  .navLinks, .authSection {
+    display: none;
+  }
+
+  .mobileMenu {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: absolute;
+    background-color: white;
+    top: -200px; /* Start above the viewport */
+    left: 50%;
+    transform: translateX(-50%) translateY(-100%);
+    min-width: 250px; /* Increased for better spacing */
+    padding: 1rem 0; /* Remove horizontal padding */
+    border-radius: 0 0 8px 8px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease-in-out;
+  }
+
+  .mobileMenu.active {
+    top: 100%; /* Slide down to just below navbar */
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  .mobileMenu .buttonlink,
+  .mobileMenu .navLink {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 12px 24px;
+    margin: 0;
+    border-bottom: 1px solid #eaeaea;
+    text-align: center;
+    width: 100%;
+  }
+
+  .mobileMenu .buttonlink:last-child,
+  .mobileMenu .navLink:last-child {
+    border-bottom: none;
+  }
+
+  .mobileMenu .authSection {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    margin: 8px 0;
+    padding: 8px 0;
+    border-top: 1px solid #eaeaea;
+  }
+
+  .mobileMenu .authSection > div {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+  }
+
+  .mobileMenu :global(.rainbow-kit-connect) {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    padding: 8px 0;
+  }
+
+  .mobileMenu :global(.rainbow-kit-connect) button {
+    margin: 0;
+  }
+
+  .mobileMenu .loginContainer {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .mobileAuthSection {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    padding: 16px 0;
+    border-top: 1px solid #eaeaea;
+  }
+
+  .mobileAuthSection > div {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .mobileAuthSection :global(.rainbow-kit-connect) {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+  }
+
+  .mobileAuthSection :global(.rainbow-kit-connect) button {
+    margin: 0;
+  }
+
+  .mobileMenu .buttonlink {
+    margin: 0;
+    padding: 12px 24px;
+    width: 100%;
+    text-align: center;
   }
 }
 

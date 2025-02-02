@@ -10,38 +10,45 @@ interface LoginButtonContext {
     username?: string | null
 }
 
-export function LoginButtons({
-    config
-}: LoginButtonContext) {
+const LoggedInView = ({ username, setUsername }: { username: string, setUsername: (username: string | null) => void }) => (
+    <div className={styles.loginContainer}>
+        <p className={styles.series}>{username}</p>
+        <div className={styles.buttonlink} onClick={() => {
+            localStorage.removeItem('username');
+            localStorage.removeItem('token');
+            setUsername(null);
+        }}>
+            Logout
+        </div>
+    </div>
+);
+
+const LoggedOutView = ({ isConnected }: { isConnected: boolean }) => (
+    <div className={styles.loginContainer}>
+        <div>
+            <ConnectButton />
+        </div>
+        {!isConnected && (
+            <Link href="/login">
+                <div className={styles.buttonlink}>Login</div>
+            </Link>
+        )}
+    </div>
+);
+
+export function LoginButtons({ config }: LoginButtonContext) {
     const { address, isConnected } = useAccount();
     const [username, setUsername] = useState<string | null>(null);
     const [mounted, setMounted] = useState(false);
+
     useEffect(() => {
         setMounted(true);
         setUsername(localStorage.getItem('username'));
     }, []);
-    // Don't render anything until mounted to prevent SSR mismatch
+
     if (!mounted) return null;
-    if (username) {
-        return (
-            <div className={`${styles.grid} ${styles.loginContainer}`}>
-                <p className={styles.series}>{username}</p>
-                <button className={styles.buttonlink} onClick={async () => { localStorage.removeItem('username'); localStorage.removeItem('token'); setUsername(null) }}>Logout</button>
-            </div>
-        )
-    }
-    return (
-        <div className={`${styles.grid} ${styles.loginContainer}`}>
-            <div>
-                <ConnectButton />
-            </div>
-            {!isConnected && (
-                <Link href={`/login`}>
-                    <div className={styles.buttonlink}>
-                        Login
-                    </div>
-                </Link>
-            )}
-        </div>
-    )
+
+    return username
+        ? <LoggedInView username={username} setUsername={setUsername} />
+        : <LoggedOutView isConnected={isConnected} />;
 }
