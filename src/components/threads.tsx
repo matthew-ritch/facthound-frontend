@@ -60,15 +60,19 @@ export function Thread({
                     </div>
                 )}
                 <div className={styles.bountyInfo}>
-                    <div className={`${styles.bountyTag} ${thread.total_bounty_available > 0 ? styles.available : null}`}>
-                        {thread.total_bounty_available ?
-                            `\$${(eth_price * parseFloat(formatUnits(thread.total_bounty_available, "ether"))).toFixed(2)} USD Available` :
-                            'No Bounty'
-                        }
-                    </div>
+                    {thread.total_bounty_available > 0 && (
+                        <div className={`${styles.bountyTag} ${styles.available}`}>
+                            {`\$${(eth_price * parseFloat(formatUnits(thread.total_bounty_available, "ether"))).toFixed(2)} USD Available`}
+                        </div>
+                    )}
                     {thread.total_bounty_claimed > 0 && (
                         <div className={`${styles.bountyTag} ${styles.claimed}`}>
                             {`\$${(eth_price * parseFloat(formatUnits(thread.total_bounty_claimed, "ether"))).toFixed(2)} USD Claimed`}
+                        </div>
+                    )}
+                    {(!thread.total_bounty_claimed && !thread.total_bounty_available) && (
+                        <div className={`${styles.bountyTag}`}>
+                            No Bounty
                         </div>
                     )}
                 </div>
