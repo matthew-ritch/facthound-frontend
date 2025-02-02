@@ -110,7 +110,7 @@ export default function Post({
             style={{ wordWrap: 'break-word', wordBreak: 'break-word' }}
         >
             {post.poster_name ?? `${post.poster_wallet.slice(0, 4)}...${post.poster_wallet.slice(-4)}`} 
-            <span className={styles.dateTime}>({formatDateTime(post.dt)})</span>:
+            <span className={styles.dateTime}>({formatDateTime(post.dt)}):</span>
             <br/>
             {convertUrlsToLinks(post.text)}
             {(post.question_id !== null && post.answer_id === null) && (

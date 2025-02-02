@@ -20,7 +20,7 @@ const factHoundSlogans = [
   "Tear down the Pareto Front.",
   "FactHound is the way out.",
   "If ideas are viruses, then truth is an inoculation.",
-  "Truth grows on trees.",
+  "Facts grow on trees.",
   "FactHound is an information market.",
   "FactHound is the only forum that matters.",
   "FactHound is a truth-seeking missile.",

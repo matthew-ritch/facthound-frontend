@@ -45,7 +45,7 @@ export function Thread({
     thread.total_bounty_available && console.log();
     return (
         <Link href={`/thread/${thread.id}`} style={{ textDecoration: 'none' }}>
-            <div className={styles.card}>
+            <div className={styles.card} style={{ width: '100%', margin: '0' }}>
                 <h2 className={styles.cardTitle}>{thread.topic}</h2>
                 <div className={styles.cardMeta}>
                     Posted by {thread.first_poster_name ??
@@ -87,7 +87,7 @@ export function ThreadList({
 }: ThreadListProps) {
     return (
         <main>
-            <div className={styles.threads}>
+            <div className={styles.grid}>
                 {threads.threads.map(k => <Thread thread={k} key={k.id} eth_price={eth_price} />)}
             </div>
         </main>
