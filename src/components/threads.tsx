@@ -28,7 +28,10 @@ export type ThreadListProps = {
 export function Thread({
     thread,
 }: ThreadProps) {
-    const parsed_date = new Date(thread.dt);
+    const parsed_date = thread.dt.endsWith('Z') ? 
+        new Date(thread.dt) : 
+        new Date(thread.dt + 'Z');
+
     const formattedDate = parsed_date.toLocaleDateString(undefined, {
         year: 'numeric',
         month: 'short',

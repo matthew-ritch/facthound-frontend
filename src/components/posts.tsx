@@ -45,8 +45,28 @@ function convertUrlsToLinks(text: string) {
 }
 
 function formatDateTime(dateStr: string) {
-    const date = new Date(dateStr);
-    return date.toLocaleString();
+    try {
+        // Handle ISO string or fall back to direct parsing
+        const date = dateStr.endsWith('Z') ? new Date(dateStr) : new Date(dateStr + 'Z');
+        
+        // Check if date is valid
+        if (isNaN(date.getTime())) {
+            return 'Invalid date';
+        }
+
+        return new Intl.DateTimeFormat(undefined, {
+            year: 'numeric',
+            month: 'numeric',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: true,
+            timeZoneName: 'short'
+        }).format(date);
+    } catch (error) {
+        console.error('Error formatting date:', error);
+        return 'Invalid date';
+    }
 }
 
 export default function Post({
