@@ -26,6 +26,24 @@ type PostProps = {
     userName?: string;
 }
 
+function convertUrlsToLinks(text: string) {
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    const parts = text.split(urlRegex);
+    
+    return parts.map((part, i) => {
+        if (part.match(urlRegex)) {
+            return <a 
+                key={i} 
+                href={part} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                onClick={(e) => e.stopPropagation()}
+            >{part}</a>;
+        }
+        return part;
+    });
+}
+
 export default function Post({
     post,
     onAnswer,
@@ -62,8 +80,9 @@ export default function Post({
                 ${isAnswer ? styles.answerPost : ''} 
                 ${post.answer_status && ['SE', 'PO', 'CE'].includes(post.answer_status) ? styles.selectedAnswer : ''}`}
             onClick={handleClick}
+            style={{ wordWrap: 'break-word', wordBreak: 'break-word' }}
         >
-            {post.poster_name ?? `${post.poster_wallet.slice(0, 4)}...${post.poster_wallet.slice(-4)}`}: {post.text}
+            {post.poster_name ?? `${post.poster_wallet.slice(0, 4)}...${post.poster_wallet.slice(-4)}`}: {convertUrlsToLinks(post.text)}
             {(post.question_id !== null && post.answer_id === null) && (
                 <div className={styles.questionLabel}>
                     Question {post.question_id}. Click to answer

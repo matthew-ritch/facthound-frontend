@@ -471,3 +471,12 @@
   padding: 0 1rem;
   word-break: break-word;
 }
+
+.card a {
+  color: #0070f3;
+  text-decoration: underline;
+}
+
+.card a:hover {
+  text-decoration: none;
+}
