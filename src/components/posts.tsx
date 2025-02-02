@@ -109,10 +109,15 @@ export default function Post({
             onClick={handleClick}
             style={{ wordWrap: 'break-word', wordBreak: 'break-word' }}
         >
-            {post.poster_name ?? `${post.poster_wallet.slice(0, 4)}...${post.poster_wallet.slice(-4)}`} 
-            <span className={styles.dateTime}>({formatDateTime(post.dt)}):</span>
-            <br/>
-            {convertUrlsToLinks(post.text)}
+            <div>
+                {post.poster_name ?? `${post.poster_wallet.slice(0, 4)}...${post.poster_wallet.slice(-4)}`} 
+                <span className={styles.dateTime}>({formatDateTime(post.dt)})</span>:
+            </div>
+
+            <div style={{ marginTop: '1rem' }}>
+                {convertUrlsToLinks(post.text)}
+            </div>
+            
             {(post.question_id !== null && post.answer_id === null) && (
                 <div className={styles.questionLabel}>
                     Question {post.question_id}. Click to answer
