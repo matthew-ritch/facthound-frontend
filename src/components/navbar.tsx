@@ -16,8 +16,10 @@ export function Navbar({ config }: NavbarProps) {
         </Link>
       </div>
       <div className={styles.navLinks}>
-        <Link href="/createthread" className={`${styles.navLink} ${styles.actionLink}`}>
-          Ask a Question
+        <Link href={`/createthread`}>
+          <div className={styles.buttonlink}>
+            Ask a Question
+          </div>
         </Link>
       </div>
       <div className={styles.authSection}>

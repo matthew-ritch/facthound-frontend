@@ -12,6 +12,21 @@
   z-index: 1000;
 }
 
+.buttonlink {
+  border: none;
+  outline: none;
+  background: none;
+  color: #0d76fc;
+  text-decoration: none;
+  margin-left: 20px;
+  font-size: 16px;
+}
+
+.buttonlink:hover {
+  text-decoration: underline;
+  cursor: pointer;
+}
+
 .logoSection {
   flex: 1;
 }
