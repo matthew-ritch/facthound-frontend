@@ -44,6 +44,11 @@ function convertUrlsToLinks(text: string) {
     });
 }
 
+function formatDateTime(dateStr: string) {
+    const date = new Date(dateStr);
+    return date.toLocaleString();
+}
+
 export default function Post({
     post,
     onAnswer,
@@ -82,7 +87,8 @@ export default function Post({
             onClick={handleClick}
             style={{ wordWrap: 'break-word', wordBreak: 'break-word' }}
         >
-            {post.poster_name ?? `${post.poster_wallet.slice(0, 4)}...${post.poster_wallet.slice(-4)}`}: {convertUrlsToLinks(post.text)}
+            {post.poster_name ?? `${post.poster_wallet.slice(0, 4)}...${post.poster_wallet.slice(-4)}`} 
+            <span className={styles.dateTime}>({formatDateTime(post.dt)})</span>: {convertUrlsToLinks(post.text)}
             {(post.question_id !== null && post.answer_id === null) && (
                 <div className={styles.questionLabel}>
                     Question {post.question_id}. Click to answer

@@ -480,3 +480,9 @@
 .card a:hover {
   text-decoration: none;
 }
+
+.dateTime {
+  color: #666;
+  font-size: 0.9em;
+  margin-left: 5px;
+}
