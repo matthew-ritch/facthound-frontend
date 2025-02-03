@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
-import { useAccount, useWriteContract } from 'wagmi';
+import { useAccount, useWriteContract, useDisconnect } from 'wagmi';
 import { simulateContract } from '@wagmi/core'
 import { encodePacked, keccak256, createPublicClient, http, parseAbiItem } from 'viem';
 import { publicClient } from '../client';
@@ -59,6 +59,7 @@ export default function CreateThread() {
     const router = useRouter();
     const { address } = useAccount();
     const { data: hash, isPending, writeContract } = useWriteContract();
+    const { disconnect } = useDisconnect();
     const [transactionSuccess, setTransactionSuccess] = useState(false);
     const [transactionState, setTransactionState] = useState<typeof TransactionStates[keyof typeof TransactionStates]>(TransactionStates.IDLE);
     const [transactionError, setTransactionError] = useState('');
@@ -81,11 +82,30 @@ export default function CreateThread() {
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
         if (localStorage.getItem('token') == null) {
             router.push(`/login/`);
             return;
         }
-        e.preventDefault();
+        // Check API availability y + token validity
+        try {
+            const check = await api.get('/api/auth/who_am_i/');
+            console.log(check)
+            if (check.code == 'token_not_valid') { 
+                localStorage.removeItem('token')
+                localStorage.removeItem('refresh')
+                disconnect();
+                setError('Authentication error. Your session has expired. Please log back in.');
+                return; }
+        } catch (authError) {
+            console.error('Authentication check failed:', authError);
+            localStorage.removeItem('token')
+            localStorage.removeItem('refresh')
+            disconnect();
+            setError('Authentication error. Your session has expired. Please log back in.');
+            return;
+        }
+
         setTransactionState(TransactionStates.PREPARING);
         setTransactionError('');
 

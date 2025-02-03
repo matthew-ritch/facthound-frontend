@@ -7,7 +7,7 @@ import Post, { PostInfo } from '../../components/posts'
 import { config } from '../../wagmi';
 import { Navbar } from '../../components/navbar';
 import api from '../../utils/api';
-import { useAccount, useWriteContract } from 'wagmi';
+import { useAccount, useWriteContract, useDisconnect } from 'wagmi';
 import { simulateContract } from '@wagmi/core'
 import { encodePacked, keccak256 } from 'viem';
 import { publicClient } from '../../client';
@@ -119,6 +119,7 @@ export default function Page({
     const [error, setError] = useState('');
     const [username, setUsername] = useState<string | undefined>(undefined);
     const [waitingForTransaction, setWaitingForTransaction] = useState(false);
+    const { disconnect } = useDisconnect();
     const [transactionType, setTransactionType] = useState<'answer' | 'select' | 'payout' | null>(null);
     const [transactionComplete, setTransactionComplete] = useState(false);
     const [onchainAnswerProps, setOnchainAnswerProps] = useState({
@@ -180,21 +181,41 @@ export default function Page({
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
-        if (window.localStorage?.getItem('token') == null) {
-            router.push(`/login/`);
-            return;
-        }
         e.preventDefault();
 
-        if (!selectedQuestionId) {
-            await submitToApi();
-            return;
-        }
-
         try {
+            // Check if user is logged in
+            if (window.localStorage?.getItem('token') == null) {
+                router.push(`/login/`);
+                return;
+            }
+
+            // Check API availability + token validity
+            try {
+                const check = await api.get('/api/auth/who_am_i/');
+                console.log(check)
+                if (check.code == 'token_not_valid') { 
+                    localStorage.removeItem('token')
+                    localStorage.removeItem('refresh')
+                    disconnect();
+                    setError('Authentication error. Your session has expired. Please log back in.');
+                    return; }
+            } catch (authError) {
+                console.error('Authentication check failed:', authError);
+                localStorage.removeItem('token')
+                localStorage.removeItem('refresh')
+                disconnect();
+                setError('Authentication error. Your session has expired. Please log back in.');
+                return;
+            }
+
+            if (!selectedQuestionId) {
+                await submitToApi();
+                return;
+            }
+
             const selectedPost = thread.posts.find(p => p.question_id === selectedQuestionId);
             if (!selectedPost) {
-                console.error('Selected post not found:', selectedQuestionId);
                 setError('Invalid question selected');
                 return;
             }
@@ -209,21 +230,27 @@ export default function Page({
                 const answerHash = createAnswerHash();
                 const questionAddress = selectedPost.question_address as `0x${string}`;
 
-                setOnchainAnswerProps({
-                    answerHash: answerHash ? answerHash : "0x",
-                    questionAddress
-                });
+                try {
+                    setOnchainAnswerProps({
+                        answerHash: answerHash ? answerHash : "0x",
+                        questionAddress
+                    });
 
-                const { request } = await simulateContract(config, {
-                    address: questionAddress,
-                    abi: QUESTION_ABI,
-                    functionName: 'createAnswer',
-                    args: [answerHash ? answerHash : "0x"]
-                });
+                    const { request } = await simulateContract(config, {
+                        address: questionAddress,
+                        abi: QUESTION_ABI,
+                        functionName: 'createAnswer',
+                        args: [answerHash ? answerHash : "0x"]
+                    });
 
-                setTransactionType('answer');
-                setWaitingForTransaction(true);
-                writeContract(request);
+                    setTransactionType('answer');
+                    setWaitingForTransaction(true);
+                    writeContract(request);
+                } catch (contractError: any) {
+                    console.error('Contract interaction failed:', contractError);
+                    setError(contractError.message || 'Failed to interact with smart contract');
+                    setWaitingForTransaction(false);
+                }
                 return;
             }
 
@@ -237,7 +264,7 @@ export default function Page({
                 err.message ||
                 err.response?.data?.detail ||
                 err.response?.data?.non_field_errors?.[0] ||
-                'Reply failed. Please try again.'
+                'Network error. Please check your connection and try again.'
             );
         }
     };
