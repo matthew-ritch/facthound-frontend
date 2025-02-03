@@ -40,9 +40,6 @@ export function Thread({
         month: 'short',
         day: 'numeric'
     });
-    console.log(eth_price);
-    thread.total_bounty_available && console.log(formatUnits(thread.total_bounty_available, "ether"));
-    thread.total_bounty_available && console.log();
     return (
         <Link href={`/thread/${thread.id}`} style={{ textDecoration: 'none' }}>
             <div className={styles.card} style={{ width: '100%', margin: '0' }}>

@@ -13,7 +13,7 @@ const refreshToken = async (): Promise<boolean> => {
   if (!refresh) return false;
 
   try {
-    const response = await fetch(`${baseURL}/api/token/refresh/`, {
+    const response = await fetch(`${baseURL}/api/auth/token/refresh/`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -33,14 +33,41 @@ const refreshToken = async (): Promise<boolean> => {
   }
 };
 
-const getHeaders = () => {
+const decodeToken = (token: string): { exp: number } | null => {
+  try {
+    return JSON.parse(atob(token.split('.')[1]));
+  } catch (e) {
+    return null;
+  }
+};
+
+const isTokenExpired = (token: string): boolean => {
+  const decoded = decodeToken(token);
+  if (!decoded) return true;
+  // Check if token will expire in the next 300 seconds
+  return decoded.exp * 1000 < Date.now() + 300000;
+};
+
+const getHeaders = async () => {
   const headers = new Headers({
     'Content-Type': 'application/json',
     'Accept': 'application/json',
   });
 
   if (!isServer) {
-    const token = getStorage().getItem('token');
+    const storage = getStorage();
+    let token = storage.getItem('token');
+    
+    if (token && isTokenExpired(token)) {
+      const refreshed = await refreshToken();
+      if (!refreshed) {
+        storage.clear();
+        window.location.href = '/login';
+        throw new Error('Session expired');
+      }
+      token = storage.getItem('token');
+    }
+
     if (token) {
       headers.append('Authorization', `Bearer ${token}`);
     }
@@ -52,31 +79,14 @@ const getHeaders = () => {
 const api = {
   get: async (url: string, data?: any) => {
     try {
+      const headers = await getHeaders();
       const response = await fetch(`${baseURL}${url}`, {
         method: 'GET',
-        headers: getHeaders(),
+        headers,
         credentials: 'include',
         body: data ? JSON.stringify(data) : undefined,
       });
-
-      if (response.status === 401) {
-        const refreshed = await refreshToken();
-        if (refreshed) {
-          // Retry the request with new token
-          const retryResponse = await fetch(`${baseURL}${url}`, {
-            method: 'GET',
-            headers: getHeaders(),
-            credentials: 'include',
-            body: data ? JSON.stringify(data) : undefined,
-          });
-          return retryResponse.json();
-        } else {
-          getStorage().clear();
-          window.location.href = '/login';
-          throw new Error('Session expired');
-        }
-      }
-
+      
       return response.json();
     } catch (error) {
       throw error;
@@ -85,31 +95,14 @@ const api = {
 
   post: async (url: string, data: any) => {
     try {
+      const headers = await getHeaders();
       const response = await fetch(`${baseURL}${url}`, {
         method: 'POST',
-        headers: getHeaders(),
+        headers,
         credentials: 'include',
         body: JSON.stringify(data),
       });
-
-      if (response.status === 401) {
-        const refreshed = await refreshToken();
-        if (refreshed) {
-          // Retry the request with new token
-          const retryResponse = await fetch(`${baseURL}${url}`, {
-            method: 'POST',
-            headers: getHeaders(),
-            credentials: 'include',
-            body: JSON.stringify(data),
-          });
-          return retryResponse.json();
-        } else {
-          getStorage().clear();
-          window.location.href = '/login';
-          throw new Error('Session expired');
-        }
-      }
-
+      
       return response.json();
     } catch (error) {
       throw error;

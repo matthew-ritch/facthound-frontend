@@ -40,11 +40,13 @@ function App({ Component, pageProps }: AppProps) {
       const data = { message, signed_message: signature }
       const verifyRes = await api.post('/api/auth/siwetoken/', data)
       localStorage.setItem('token', verifyRes.access)
+      localStorage.setItem('refresh', verifyRes.refresh)
       SET_AUTHENTICATION_STATUS('authenticated')
       return Boolean(verifyRes.access ? true : false);
     },
     signOut: async () => {
       localStorage.removeItem('token')
+      localStorage.removeItem('refresh')
       SET_AUTHENTICATION_STATUS('unauthenticated')
     },
   });
