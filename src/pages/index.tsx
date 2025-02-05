@@ -7,23 +7,23 @@ import Link from 'next/link';
 import { useState } from 'react';
 
 const factHoundSlogans = [
-  "FactHound is a truth-seeking missile.",
+  "Facthound is a truth-seeking missile.",
   "Information wants to be free, but somebody needs to pay its bail.",
   "Light, in the absence of eyes, illuminates nothing.",
-  "FactHound is your zoomer brother's favorite information broker.",
-  "FactHound is an information clearinghouse.",
-  "FactHound is an information bounty hunter.",
-  "FactHound is the world's most profitable bulletin board.",
+  "Facthound is your zoomer brother's favorite information broker.",
+  "Facthound is an information clearinghouse.",
+  "Facthound is an information bounty hunter.",
+  "Facthound is the world's most profitable bulletin board.",
   "Total information awareness; equal opportunity enforcement.",
-  "FactHound was originally bred to hunt badgers.",
+  "Facthound was originally bred to hunt badgers.",
   "The truth is out there, and it's for hire.",
   "Tear down the Pareto Front.",
-  "FactHound is the way out.",
+  "Facthound is the way out.",
   "If ideas are viruses, then truth is an inoculation.",
   "Facts grow on trees.",
-  "FactHound is an information market.",
-  "FactHound is the only forum that matters.",
-  "FactHound is a truth-seeking missile.",
+  "Facthound is an information market.",
+  "Facthound is the only forum that matters.",
+  "Facthound is a truth-seeking missile.",
 ];
 const marqueeText = factHoundSlogans.join('       ');
 
@@ -57,10 +57,10 @@ export default function Home({
   return (
     <div className={styles.container}>
       <Head>
-        <title>FactHound</title>
+        <title>Facthound</title>
         <meta
-          content="FactHound"
-          name="FactHound"
+          content="Facthound"
+          name="Facthound"
         />
         <link href="static/favicon.ico" rel="icon" />
       </Head>

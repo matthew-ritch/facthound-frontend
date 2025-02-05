@@ -52,10 +52,10 @@ export default function Login() {
     <main>
       <div className={styles.container}>
       <Head>
-        <title>FactHound</title>
+        <title>Facthound</title>
         <meta
-          content="FactHound"
-          name="FactHound"
+          content="Facthound"
+          name="Facthound"
         />
         <link href="static/favicon.ico" rel="icon" />
       </Head>

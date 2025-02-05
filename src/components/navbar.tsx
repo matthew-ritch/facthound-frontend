@@ -19,7 +19,7 @@ export function Navbar({ config }: NavbarProps) {
     <nav className={styles.navbar}>
       <div className={styles.logoSection}>
         <Link href="/" className={styles.logo}>
-          FactHound
+          Facthound
         </Link>
       </div>
       <button className={styles.hamburger} onClick={toggleMenu}>
