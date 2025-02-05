@@ -117,7 +117,7 @@ export default function Page({
     eth_price
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
     const [replyText, setReplyText] = useState('');
-    const [selectedQuestionId, setSelectedQuestionId] = useState<number | null>(null);
+    const [selectedQuestionId, setSelectedQuestionId] = useState<number | null>(thread.posts[0].question_id);
     const [error, setError] = useState('');
     const [username, setUsername] = useState<string | undefined>(undefined);
     const [waitingForTransaction, setWaitingForTransaction] = useState(false);
@@ -439,7 +439,7 @@ export default function Page({
             </Head>
             <Navbar config={config} />
             <main className={styles.main}>
-                <div className={styles.container}>
+                <div className={styles.container} style={{ paddingTop: '30px' }}>
                     <div className={styles.threadTitle}>
                         <h1>{thread.threadTopic}</h1>
                         <hr className={styles.divider} />
@@ -479,12 +479,12 @@ export default function Page({
                                 <button type="button" onClick={() => {
                                     setSelectedQuestionId(null);
                                 }}>
-                                    Cancel Answer
+                                    Post a reply instead
                                 </button>
                             )}
                         </form>
                     </div>
-                    <div className={styles.transactionStatus}>
+                    {(hash || isPending || transactionComplete) && (<div className={styles.transactionStatus}>
                         {hash && (
                             <div className={styles.statusItem}>
                                 <span className={styles.statusLabel}>Transaction Hash:</span>
@@ -501,7 +501,7 @@ export default function Page({
                                 <span className={styles.statusSuccess}>Transaction Confirmed! ✓</span>
                             </div>
                         )}
-                    </div>
+                    </div>)}
                 </div>
             </main>
         </div>

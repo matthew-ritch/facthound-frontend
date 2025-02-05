@@ -9,6 +9,7 @@ export interface PostInfo {
     poster_name: number;
     poster_wallet: string;
     question_id: number;
+    contract_address: string;
     question_hash: string;
     bounty: number | null;
     asker_address: string;
@@ -110,7 +111,7 @@ export default function Post({
             style={{ wordWrap: 'break-word', wordBreak: 'break-word' }}
         >
             <div>
-                {post.poster_name ?? `${post.poster_wallet.slice(0, 4)}...${post.poster_wallet.slice(-4)}`} 
+                {post.poster_name ?? <a onClick={(e) => e.stopPropagation()} href={`https://sepolia.basescan.org/address/${post.poster_wallet}`}>{post.poster_wallet.slice(0, 4)}...{post.poster_wallet.slice(-4)}</a>} 
                 <span className={styles.dateTime}>({formatDateTime(post.dt)})</span>:
             </div>
 
@@ -122,7 +123,7 @@ export default function Post({
                 <div className={styles.questionLabel}>
                     Question {post.question_id}. Click to answer
                     {post.bounty && post.bounty > 0 && (
-                        <div>Bounty: ${(eth_price * parseFloat(formatUnits(post.bounty, "ether"))).toFixed(2)} USD</div>
+                        <div>Bounty: ${(eth_price * parseFloat(formatUnits(post.bounty, "ether"))).toFixed(2)} USD. <a onClick={(e) => e.stopPropagation()} href={`https://sepolia.basescan.org/address/${post.contract_address}`}>Contract</a></div>
                     )}
                 </div>
             )}
