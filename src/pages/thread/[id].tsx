@@ -12,6 +12,7 @@ import { simulateContract } from '@wagmi/core'
 import { encodePacked, keccak256 } from 'viem';
 import { publicClient } from '../../client';
 import Head from 'next/head';
+import { on } from 'events';
 
 interface Params {
     id: string;
@@ -49,11 +50,16 @@ export async function getServerSideProps(context: Context) {
     return { props: { thread, eth_price } };
 }
 
-const QUESTION_ABI = [
+const FACTHOUND_ABI = [
     {
         "type": "function",
         "name": "createAnswer",
         "inputs": [
+            {
+                "name": "questionHash",
+                "type": "bytes32",
+                "internalType": "bytes32"
+            },
             {
                 "name": "answerHash",
                 "type": "bytes32",
@@ -62,31 +68,17 @@ const QUESTION_ABI = [
         ],
         "outputs": [],
         "stateMutability": "nonpayable"
-    },
-    {
-        "type": "event",
-        "name": "AnswerCreated",
-        "inputs": [
-            {
-                "name": "_answerer",
-                "type": "address",
-                "indexed": true,
-                "internalType": "address"
-            },
-            {
-                "name": "_answerHash",
-                "type": "bytes32",
-                "indexed": true,
-                "internalType": "bytes32"
-            }
-        ],
-        "anonymous": false
     },
     {
         "type": "function",
         "name": "selectAnswer",
         "inputs": [
             {
+                "name": "questionHash",
+                "type": "bytes32",
+                "internalType": "bytes32"
+            },
+            {
                 "name": "answerHash",
                 "type": "bytes32",
                 "internalType": "bytes32"
@@ -97,10 +89,10 @@ const QUESTION_ABI = [
     },
     {
         "type": "function",
-        "name": "payoutAnswer",
+        "name": "redeemAnswer",
         "inputs": [
             {
-                "name": "answerHash",
+                "name": "questionHash",
                 "type": "bytes32",
                 "internalType": "bytes32"
             }
@@ -109,6 +101,16 @@ const QUESTION_ABI = [
         "stateMutability": "nonpayable"
     }
 ] as const;
+
+// Add this utility function after the ABI definition
+const convertToBytes32 = (hexString: string): `0x${string}` => {
+    // Remove '0x' if present and ensure the string is 64 characters
+    const cleanHex = hexString.startsWith('0x') ? hexString.slice(2) : hexString;
+    if (cleanHex.length !== 64) {
+        throw new Error('Invalid hex string length');
+    }
+    return `0x${cleanHex}` as `0x${string}`;
+};
 
 export default function Page({
     thread,
@@ -123,13 +125,14 @@ export default function Page({
     const [transactionType, setTransactionType] = useState<'answer' | 'select' | 'payout' | null>(null);
     const [transactionComplete, setTransactionComplete] = useState(false);
     const [onchainAnswerProps, setOnchainAnswerProps] = useState({
-        questionAddress: '' as `0x${string}`,
+        contractAddress: '' as `0x${string}`,
+        questionHash: '' as `0x${string}`,
         answerHash: '' as `0x${string}`,
     });
     const [selectedAnswerProps, setSelectedAnswerProps] = useState({
         questionId: 0,
         answerId: 0,
-        questionAddress: '' as `0x${string}`,
+        questionHash: '' as `0x${string}`,
         answerHash: '' as `0x${string}`,
     });
     const { data: hash, isPending, writeContract } = useWriteContract();
@@ -146,20 +149,26 @@ export default function Page({
         if (!pendingTx) return;
 
         const checkTransaction = async () => {
+            console.log('Checking transaction:', pendingTx);
             try {
                 const receipt = await publicClient.waitForTransactionReceipt({
                     hash: pendingTx
                 });
 
+                console.log('Transaction receipt:', receipt);
+
                 if (receipt.status === 'success') {
                     if (transactionType === 'answer') {
+                        console.log('Submitting successful transaction to API:', onchainAnswerProps);
                         await submitToApi(onchainAnswerProps);
                     }
                     setTransactionComplete(true);
                 } else {
+                    console.error('Transaction failed:', receipt);
                     setError('Transaction failed');
                 }
             } catch (err) {
+                console.error('Transaction check failed:', err);
                 setError('Transaction failed');
             } finally {
                 setWaitingForTransaction(false);
@@ -172,16 +181,22 @@ export default function Page({
 
     const createAnswerHash = () => {
         if (!address) return null;
-        return keccak256(
-            encodePacked(
-                ['address', 'string'],
-                [address, replyText]
-            )
+        console.log('Creating answer hash with:', { address, replyText });
+        // Pack and hash the data to ensure bytes32 output
+        const packed = encodePacked(
+            ['address', 'string'],
+            [address, replyText]
         );
+        console.log('Packed data:', packed);
+        // Hash the packed data to get bytes32
+        const hash = keccak256(packed);
+        console.log('Generated hash:', hash);
+        return hash;
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        console.log('Submit started with:', { selectedQuestionId, replyText });
 
         try {
             // Check if user is logged in
@@ -193,7 +208,6 @@ export default function Page({
             // Check API availability + token validity
             try {
                 const check = await api.get('/api/auth/who_am_i/');
-                console.log(check)
                 if (check.code == 'token_not_valid') { 
                     localStorage.removeItem('token')
                     localStorage.removeItem('refresh')
@@ -221,33 +235,47 @@ export default function Page({
             }
 
             // Check if this is a question that requires on-chain verification
-            if (selectedPost.question_address) {
-                if (!address) {
-                    setError('Please connect your wallet to answer this question');
-                    return;
-                }
+            console.log(selectedPost);
+            if (selectedPost.question_hash) {
+                console.log('On-chain question detected:', {
+                    questionHash: selectedPost.question_hash,
+                    address: address
+                });
 
                 const answerHash = createAnswerHash();
-                const questionAddress = selectedPost.question_address as `0x${string}`;
+                const questionHashBytes32 = convertToBytes32(selectedPost.question_hash);
+                
+                console.log('Preparing contract call:', {
+                    questionHashBytes32,
+                    answerHash,
+                    contractAddress: process.env.NEXT_PUBLIC_SEPOLIA_FACTHOUND
+                });
 
                 try {
                     setOnchainAnswerProps({
+                        contractAddress: process.env.NEXT_PUBLIC_SEPOLIA_FACTHOUND as `0x${string}`,
                         answerHash: answerHash ? answerHash : "0x",
-                        questionAddress
+                        questionHash: questionHashBytes32
                     });
-
+                    
                     const { request } = await simulateContract(config, {
-                        address: questionAddress,
-                        abi: QUESTION_ABI,
+                        address: process.env.NEXT_PUBLIC_SEPOLIA_FACTHOUND as `0x${string}`,
+                        abi: FACTHOUND_ABI,
                         functionName: 'createAnswer',
-                        args: [answerHash ? answerHash : "0x"]
+                        args: [questionHashBytes32, answerHash ? answerHash as `0x${string}` : "0x" as `0x${string}`]
                     });
 
+                    console.log('Contract simulation successful:', request);
                     setTransactionType('answer');
                     setWaitingForTransaction(true);
                     writeContract(request);
                 } catch (contractError: any) {
-                    console.error('Contract interaction failed:', contractError);
+                    console.error('Contract simulation failed:', {
+                        error: contractError,
+                        message: contractError.message,
+                        details: contractError.details,
+                        code: contractError.code
+                    });
                     setError(contractError.message || 'Failed to interact with smart contract');
                     setWaitingForTransaction(false);
                 }
@@ -258,7 +286,12 @@ export default function Page({
             await submitToApi();
 
         } catch (err: any) {
-            console.error('Submission error:', err);
+            console.error('Submission error details:', {
+                error: err,
+                message: err.message,
+                response: err.response?.data,
+                stack: err.stack
+            });
             setWaitingForTransaction(false);
             setError(
                 err.message ||
@@ -271,13 +304,15 @@ export default function Page({
 
     useEffect(() => {
         if (hash) {
+            console.log('Transaction hash received:', hash);
             setPendingTx(hash);
         }
     }, [hash]);
 
     const submitToApi = async (props?: {
+        contractAddress: `0x${string}`,
         answerHash: `0x${string}`,
-        questionAddress: `0x${string}`
+        questionHash: `0x${string}`
     }) => {
         const basePayload = {
             thread: thread.threadId,
@@ -286,7 +321,7 @@ export default function Page({
         };
 
         const payload = props
-            ? { ...basePayload, answerHash: props.answerHash, questionAddress: props.questionAddress }
+            ? { ...basePayload, answerHash: props.answerHash, questionHash: props.questionHash, contractAddress: props.contractAddress }
             : basePayload;
 
 
@@ -309,33 +344,30 @@ export default function Page({
         window.scrollTo(0, document.body.scrollHeight);
     };
 
-    const handleSelectAnswer = async (questionId: number, answerId: number, questionAddress?: string, answerHash?: string) => {
+    const handleSelectAnswer = async (questionId: number, answerId: number, questionHash?: string, answerHash?: string) => {
         // For blockchain questions, require wallet connection
-        if (questionAddress && answerHash) {
+        if (questionHash && answerHash) {
             if (!address) {
                 setError('Please connect your wallet');
                 return;
             }
 
             try {
-                const formattedHash = `0x${answerHash.replace('0x', '').padStart(64, '0')}` as `0x${string}`;
-
-                const contract = {
-                    address: questionAddress as `0x${string}`,
-                    abi: QUESTION_ABI
-                };
+                const formattedAnswerHash = convertToBytes32(answerHash);
+                const formattedQuestionHash = convertToBytes32(questionHash);
 
                 const { request } = await simulateContract(config, {
-                    ...contract,
+                    address: process.env.NEXT_PUBLIC_SEPOLIA_FACTHOUND as `0x${string}`,
+                    abi: FACTHOUND_ABI,
                     functionName: 'selectAnswer',
-                    args: [formattedHash]
+                    args: [formattedQuestionHash, formattedAnswerHash]
                 });
 
                 setSelectedAnswerProps({
                     questionId,
                     answerId,
-                    questionAddress: questionAddress as `0x${string}`,
-                    answerHash: formattedHash
+                    questionHash: formattedQuestionHash,
+                    answerHash: formattedAnswerHash
                 });
 
                 setTransactionType('select');
@@ -403,7 +435,7 @@ export default function Page({
                     content="FactHound"
                     name="FactHound"
                 />
-                <link href="static/favicon.ico" rel="icon" />
+                <link href="../static/favicon.ico" rel="icon" />
             </Head>
             <Navbar config={config} />
             <main className={styles.main}>

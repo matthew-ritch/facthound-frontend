@@ -12,9 +12,7 @@ import { Navbar } from '../components/navbar';
 import { parseUnits } from "ethers";
 import Head from 'next/head';
 
-const FACTORY_ABI = [
-    { "type": "constructor", "inputs": [{ "name": "_oracle", "type": "address", "internalType": "address" }, { "name": "_asker_fee_per_10000", "type": "uint16", "internalType": "uint16" }], "stateMutability": "nonpayable" },
-    { "type": "function", "name": "asker_fee_per_10000", "inputs": [], "outputs": [{ "name": "", "type": "uint16", "internalType": "uint16" }], "stateMutability": "view" },
+const FACTHOUND_ABI = [
     {
         "type": "function",
         "name": "createQuestion",
@@ -25,15 +23,9 @@ const FACTORY_ABI = [
                 "internalType": "bytes32"
             }
         ],
-        "outputs": [], // Changed this - function doesn't return anything
+        "outputs": [],
         "stateMutability": "payable"
-    },
-    { "type": "function", "name": "getQuestion", "inputs": [{ "name": "", "type": "bytes32", "internalType": "bytes32" }], "outputs": [{ "name": "", "type": "address", "internalType": "address" }], "stateMutability": "view" },
-    { "type": "function", "name": "oracle", "inputs": [], "outputs": [{ "name": "", "type": "address", "internalType": "address" }], "stateMutability": "view" },
-    { "type": "function", "name": "owner", "inputs": [], "outputs": [{ "name": "", "type": "address", "internalType": "address" }], "stateMutability": "view" },
-    { "type": "function", "name": "setOwner", "inputs": [{ "name": "_owner", "type": "address", "internalType": "address" }], "outputs": [], "stateMutability": "nonpayable" },
-    { "type": "function", "name": "widthdraw", "inputs": [], "outputs": [], "stateMutability": "nonpayable" },
-    { "type": "event", "name": "QuestionCreated", "inputs": [{ "name": "_asker", "type": "address", "indexed": true, "internalType": "address" }, { "name": "_questionAddress", "type": "address", "indexed": true, "internalType": "address" }, { "name": "_bounty", "type": "uint256", "indexed": false, "internalType": "uint256" }], "anonymous": false }
+    }
 ] as const;
 
 // Add new state type at the top of the component
@@ -51,7 +43,7 @@ export default function CreateThread() {
         topic: '',
         text: '',
         tags: '',
-        questionAddress: '',
+        contractAddress: '',
         bounty: '0'
     });
     const [error, setError] = useState('');
@@ -63,6 +55,7 @@ export default function CreateThread() {
     const [transactionSuccess, setTransactionSuccess] = useState(false);
     const [transactionState, setTransactionState] = useState<typeof TransactionStates[keyof typeof TransactionStates]>(TransactionStates.IDLE);
     const [transactionError, setTransactionError] = useState('');
+    const [pendingTx, setPendingTx] = useState<`0x${string}` | null>(null);
 
     const createQuestionHash = () => {
         if (!address) return null;
@@ -90,7 +83,6 @@ export default function CreateThread() {
         // Check API availability y + token validity
         try {
             const check = await api.get('/api/auth/who_am_i/');
-            console.log(check)
             if (check.code == 'token_not_valid') { 
                 localStorage.removeItem('token')
                 localStorage.removeItem('refresh')
@@ -118,42 +110,16 @@ export default function CreateThread() {
 
                 try {
                     const { request } = await simulateContract(config, {
-                        address: process.env.NEXT_PUBLIC_SEPOLIA_QUESTION_FACTORY as `0x${string}`,
-                        abi: FACTORY_ABI,
+                        address: process.env.NEXT_PUBLIC_SEPOLIA_FACTHOUND as `0x${string}`,
+                        abi: FACTHOUND_ABI,
                         functionName: 'createQuestion',
                         args: [questionHash ? questionHash : "0x"],
                         value: parseUnits(threadDetails.bounty, "ether")
                     });
 
-
-
-                    const unwatch = publicClient.watchContractEvent({
-                        address: process.env.NEXT_PUBLIC_SEPOLIA_QUESTION_FACTORY as `0x${string}`,
-                        abi: FACTORY_ABI,
-                        eventName: 'QuestionCreated',
-                        onLogs: async (logs) => {
-                            const log = logs[0];
-                            if (log) {
-                                try {
-                                    await submitToApi(log.args._questionAddress as string);
-                                    setTransactionSuccess(true);
-                                    setTransactionState(TransactionStates.SUCCESS);
-                                } catch (err) {
-                                    console.error('API submission failed:', err);
-                                    setError('Failed to submit question to API');
-                                    setTransactionState(TransactionStates.ERROR);
-                                } finally {
-                                    setWaitingForTransaction(false);
-                                    unwatch(); // Stop watching for events
-                                }
-                            }
-                        },
-                    });
-
                     setTransactionState(TransactionStates.AWAITING_SIGNATURE);
-
-                    const txHash = await writeContract(request);
-                    // After signature, set to pending state
+                    await writeContract(request);
+                    if (hash) setPendingTx(hash); // Set pending transaction hash
                     setTransactionState(TransactionStates.PENDING);
 
                 } catch (err: any) {
@@ -193,7 +159,8 @@ export default function CreateThread() {
             topic: threadDetails.topic,
             text: threadDetails.text,
             tags: threadDetails.tags.split(',').map(tag => tag.trim()),
-            questionAddress: contractAddress
+            contractAddress: contractAddress??'',
+            questionHash: contractAddress?createQuestionHash():'',
         });
 
         if (response.message === 'success') {
@@ -203,12 +170,56 @@ export default function CreateThread() {
         }
     };
 
+    // Add effect to monitor transaction status
+    useEffect(() => {
+        if (!pendingTx) return;
+
+        const checkTransaction = async () => {
+            try {
+                const receipt = await publicClient.waitForTransactionReceipt({
+                    hash: pendingTx
+                });
+
+                if (receipt.status === 'success') {
+                    try {
+                        // Submit to API after successful transaction
+                        await submitToApi(process.env.NEXT_PUBLIC_SEPOLIA_FACTHOUND as `0x${string}`);
+                        setTransactionSuccess(true);
+                        setTransactionState(TransactionStates.SUCCESS);
+                    } catch (err) {
+                        console.error('API submission failed:', err);
+                        setError('Failed to submit question to API');
+                        setTransactionState(TransactionStates.ERROR);
+                    }
+                } else {
+                    setTransactionState(TransactionStates.ERROR);
+                    setTransactionError('Transaction failed');
+                }
+            } catch (err) {
+                setTransactionState(TransactionStates.ERROR);
+                setTransactionError('Failed to confirm transaction');
+            } finally {
+                setWaitingForTransaction(false);
+                setPendingTx(null);
+            }
+        };
+
+        checkTransaction();
+    }, [pendingTx]);
+
     // Replace the previous useEffect with this simpler version
     useEffect(() => {
         return () => {
             resetTransactionState();
         };
     }, []);
+
+    // Update useEffect for hash changes
+    useEffect(() => {
+        if (hash) {
+            setPendingTx(hash);
+        }
+    }, [hash]);
 
     // Replace the existing transaction status section with this new one
     const renderTransactionStatus = () => {

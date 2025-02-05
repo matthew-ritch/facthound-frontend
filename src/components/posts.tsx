@@ -9,7 +9,7 @@ export interface PostInfo {
     poster_name: number;
     poster_wallet: string;
     question_id: number;
-    question_address: string;
+    question_hash: string;
     bounty: number | null;
     asker_address: string;
     asker_username: string;
@@ -22,7 +22,7 @@ type PostProps = {
     post: PostInfo;
     eth_price: number;
     onAnswer?: (questionId: number) => void;
-    onSelectAnswer?: (questionId: number, answerId: number, questionAddress?: string, answerHash?: string) => void;
+    onSelectAnswer?: (questionId: number, answerId: number, questionHash?: string, answerHash?: string) => void;
     userAddress?: string;
     userName?: string;
 }
@@ -80,10 +80,10 @@ export default function Post({
 }: PostProps) {
     const isAnswerableQuestion = post.question_id && post.answer_id === null && onAnswer;
     const isAnswer = post.question_id !== null && post.answer_id !== null;
-    const canSelectOnChain = post.question_id !== null && post.answer_id !== null && post.question_address && post.answer_hash && userAddress === post.asker_address;
+    const canSelectOnChain = post.question_id !== null && post.answer_id !== null && post.question_hash && post.answer_hash && userAddress === post.asker_address;
     const canSelectOffChain = post.question_id !== null && 
                              post.answer_id !== null && 
-                             !post.question_address && 
+                             !post.question_hash && 
                              !post.answer_hash && 
                              userName && 
                              userName === post.asker_username;
@@ -94,7 +94,7 @@ export default function Post({
             onSelectAnswer(
                 post.question_id!,
                 post.answer_id!,
-                post.question_address,
+                post.question_hash,
                 post.answer_hash ?? undefined
             );
         }
