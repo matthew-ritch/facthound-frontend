@@ -41,7 +41,7 @@ export function Thread({
         day: 'numeric'
     });
     return (
-        <Link href={`/thread/${thread.id}`} style={{ textDecoration: 'none' }}>
+        <Link href={`/thread/${thread.id}/${thread.topic.toLowerCase().split(' ').join('+')}`} style={{ textDecoration: 'none' }}>
             <div className={styles.card} style={{ width: '100%', margin: '0' }}>
                 <h2 className={styles.cardTitle}>{thread.topic}</h2>
                 <div className={styles.cardMeta}>

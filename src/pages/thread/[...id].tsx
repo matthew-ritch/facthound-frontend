@@ -28,7 +28,7 @@ interface Thread {
 
 export async function getServerSideProps(context: Context) {
     const { params } = context;
-    const threadId = params?.id;
+    const threadId = params?.id[0];
     // Fetch data from external API
     const res = await fetch(process.env.BACKEND_URL + `/api/questions/thread?threadId=${threadId}`);
     const thread: Thread = await res.json();
