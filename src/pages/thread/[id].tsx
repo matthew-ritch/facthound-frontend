@@ -5,14 +5,12 @@ import styles from '../../styles/Home.module.css';
 import loginStyles from '../../styles/Login.module.css';
 import Post, { PostInfo } from '../../components/posts'
 import { config } from '../../wagmi';
-import { Navbar } from '../../components/navbar';
 import api from '../../utils/api';
 import { useAccount, useWriteContract, useDisconnect } from 'wagmi';
 import { simulateContract } from '@wagmi/core'
 import { encodePacked, keccak256 } from 'viem';
 import { publicClient } from '../../client';
-import Head from 'next/head';
-import { on } from 'events';
+import { Header } from '../../components/header';
 
 interface Params {
     id: string;
@@ -429,15 +427,7 @@ export default function Page({
 
     return (
         <div className={styles.container}>
-            <Head>
-                <title>Facthound</title>
-                <meta
-                    content="Facthound"
-                    name="Facthound"
-                />
-                <link href="../static/favicon.ico" rel="icon" />
-            </Head>
-            <Navbar config={config} />
+            <Header config={config} />
             <main className={styles.main}>
                 <div className={styles.container} style={{ paddingTop: '30px' }}>
                     <div className={styles.threadTitle}>

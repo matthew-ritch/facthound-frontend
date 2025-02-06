@@ -4,7 +4,7 @@ import api from '../utils/api';
 import styles from '../styles/Login.module.css';
 import { cookies } from 'next/headers'
 import Link from 'next/link'
-import Head from 'next/head';
+import { Header } from '../components/header';
 
 export default function CreateUser() {
     const [credentials, setCredentials] = useState({
@@ -38,14 +38,7 @@ export default function CreateUser() {
 
     return (
         <div className={styles.container}>
-            <Head>
-                <title>Facthound</title>
-                <meta
-                    content="Facthound"
-                    name="Facthound"
-                />
-                <link href="static/favicon.ico" rel="icon" />
-            </Head>
+            <Header/>
             <form className={styles.form} onSubmit={handleSubmit}>
                 <h1>Create User</h1>
                 {error && <div className={styles.error}>{error}</div>}

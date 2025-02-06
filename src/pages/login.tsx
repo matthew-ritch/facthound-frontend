@@ -5,7 +5,7 @@ import styles from '../styles/Login.module.css';
 import Link from 'next/link'
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { useAccount } from 'wagmi';
-import Head from 'next/head';
+import { Header } from '../components/header';
 
 export default function Login() {
   const [credentials, setCredentials] = useState({
@@ -51,14 +51,7 @@ export default function Login() {
   return (
     <main>
       <div className={styles.container}>
-      <Head>
-        <title>Facthound</title>
-        <meta
-          content="Facthound"
-          name="Facthound"
-        />
-        <link href="static/favicon.ico" rel="icon" />
-      </Head>
+      <Header/>
         <form className={styles.form} onSubmit={handleSubmit}>
           <h1>Login</h1>
           {error && <div className={styles.error}>{error}</div>}

@@ -1,10 +1,8 @@
 import { config } from '../wagmi';
-import Head from 'next/head';
 import styles from '../styles/Home.module.css';
 import { ThreadList, ThreadListProps } from '../components/threads';
-import { Navbar } from '../components/navbar';
-import Link from 'next/link';
 import { useState } from 'react';
+import { Header } from '../components/header';
 
 const factHoundSlogans = [
   "Facthound is a truth-seeking missile.",
@@ -56,15 +54,7 @@ export default function Home({
 
   return (
     <div className={styles.container}>
-      <Head>
-        <title>Facthound</title>
-        <meta
-          content="Facthound"
-          name="Facthound"
-        />
-        <link href="static/favicon.ico" rel="icon" />
-      </Head>
-      <Navbar config={config} />
+      <Header config={config} />
       <main className={styles.main} >
         <div className={styles.marquee}>
             <p>{marqueeText}</p>

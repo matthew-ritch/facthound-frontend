@@ -8,9 +8,8 @@ import api from '../utils/api';
 import styles from '../styles/Login.module.css';
 import Link from 'next/link';
 import { config } from '../wagmi';
-import { Navbar } from '../components/navbar';
 import { parseUnits } from "ethers";
-import Head from 'next/head';
+import { Header } from '../components/header';
 
 const FACTHOUND_ABI = [
     {
@@ -278,15 +277,7 @@ export default function CreateThread() {
 
     return (
         <div className={styles.container}>
-            <Head>
-                <title>Facthound</title>
-                <meta
-                    content="Facthound"
-                    name="Facthound"
-                />
-                <link href="static/favicon.ico" rel="icon" />
-            </Head>
-            <Navbar config={config} />
+            <Header config={config} />
             <form className={styles.form} onSubmit={handleSubmit}>
                 <h1>Ask a Question</h1>
                 {error && <div className={styles.error}>{error}</div>}
