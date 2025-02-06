@@ -23,7 +23,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const currentDate = new Date().toISOString();
 
     const urls = threads.map((thread) => ({
-        url: `${baseUrl}/thread/${thread.id}/${thread.topic.toLowerCase().split(' ').join('+')}`,
+        url: `${baseUrl}/thread/${thread.id}/${thread.topic.toLowerCase().trim().split(' ').join('+')}`,
         lastModified: currentDate,
         changeFrequency: 'weekly' as const,
         priority: 0.6,
