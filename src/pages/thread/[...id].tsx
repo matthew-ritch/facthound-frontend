@@ -471,7 +471,7 @@ export default function Page({
                                     title={!isAuthenticated ? "Please log in to answer" : ""}
                                 />
                             </div>
-                            <button type="submit" disabled={!isAuthenticated}>
+                            <button type="submit" disabled={!isAuthenticated || (address==null && is_onchain)}>
                                 {selectedQuestionId ? 'Submit Answer' : 'Reply'}
                             </button>
                             {selectedQuestionId && (
