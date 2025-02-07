@@ -287,7 +287,7 @@ export default function CreateThread() {
                 <h1>Ask a Question</h1>
                 {!isAuthenticated && (
                     <div className={styles.loginMessage}>
-                        Please <Link href="/login">log in</Link> to post a question
+                        Please <Link href="/login">log in</Link> to ask a question
                     </div>
                 )}
                 {error && <div className={styles.error}>{error}</div>}
@@ -297,7 +297,7 @@ export default function CreateThread() {
                         type="text"
                         id="topic"
                         disabled={!isAuthenticated}
-                        title={!isAuthenticated ? "Please log in to post a question" : ""}
+                        title={!isAuthenticated ? "Please log in to ask a question" : ""}
                         value={threadDetails.topic}
                         onChange={(e) => setThreadDetails({
                             ...threadDetails,
@@ -312,7 +312,7 @@ export default function CreateThread() {
                         className={styles.postText}
                         id="text"
                         disabled={!isAuthenticated}
-                        title={!isAuthenticated ? "Please log in to post a question" : ""}
+                        title={!isAuthenticated ? "Please log in to ask a question" : ""}
                         value={threadDetails.text}
                         onChange={(e) => setThreadDetails({
                             ...threadDetails,
@@ -327,7 +327,7 @@ export default function CreateThread() {
                         type="text"
                         id="tags"
                         disabled={!isAuthenticated}
-                        title={!isAuthenticated ? "Please log in to post a question" : ""}
+                        title={!isAuthenticated ? "Please log in to ask a question" : ""}
                         value={threadDetails.tags}
                         onChange={(e) => setThreadDetails({
                             ...threadDetails,

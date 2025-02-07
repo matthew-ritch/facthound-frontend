@@ -463,7 +463,7 @@ export default function Page({
                         <form className={loginStyles.form} onSubmit={handleSubmit}>
                             {!isAuthenticated && (
                                 <div className={loginStyles.loginMessage}>
-                                    Please <Link href="/login">log in</Link> to post a reply
+                                    Please <Link href="/login">log in</Link> to answer
                                 </div>
                             )}
                             {error && <div className={loginStyles.error}>{error}</div>}
@@ -478,7 +478,7 @@ export default function Page({
                                     onChange={(e) => setReplyText(e.target.value)}
                                     required
                                     disabled={!isAuthenticated}
-                                    title={!isAuthenticated ? "Please log in to post a reply" : ""}
+                                    title={!isAuthenticated ? "Please log in to answer" : ""}
                                 />
                             </div>
                             <button type="submit" disabled={!isAuthenticated}>
