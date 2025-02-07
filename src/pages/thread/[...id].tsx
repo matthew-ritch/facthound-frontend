@@ -186,7 +186,7 @@ export default function Page({
     // Add useEffect for authentication check
     useEffect(() => {
         setIsAuthenticated(localStorage.getItem('token') != null);
-    }, []);
+    }, [address, localStorage.getItem('token')]);
 
     const createAnswerHash = () => {
         if (!address) return null;

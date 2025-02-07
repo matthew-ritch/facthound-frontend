@@ -224,7 +224,7 @@ export default function CreateThread() {
     // are we authenticated?
     useEffect(() => {
         setIsAuthenticated(localStorage.getItem('token') != null);
-    }, []);
+    }, [address, localStorage.getItem('token')]); 
 
     // Replace the existing transaction status section with this new one
     const renderTransactionStatus = () => {
