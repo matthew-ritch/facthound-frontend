@@ -1,16 +1,20 @@
 import { useRouter } from 'next/router'
+import Link from 'next/link';
+import type { InferGetServerSidePropsType } from 'next'
 import { useState, useEffect } from 'react';
-import type { InferGetServerSidePropsType, GetServerSideProps } from 'next'
-import styles from '../../styles/Home.module.css';
-import loginStyles from '../../styles/Login.module.css';
-import Post, { PostInfo } from '../../components/posts'
-import { config } from '../../wagmi';
-import api from '../../utils/api';
+
 import { useAccount, useWriteContract, useDisconnect } from 'wagmi';
 import { simulateContract } from '@wagmi/core'
 import { encodePacked, keccak256 } from 'viem';
-import { publicClient } from '../../client';
+
 import { Header } from '../../components/header';
+import Post, { PostInfo } from '../../components/posts'
+import api from '../../utils/api';
+import { config } from '../../wagmi';
+import { publicClient } from '../../client';
+
+import styles from '../../styles/Home.module.css';
+import loginStyles from '../../styles/Login.module.css';
 
 interface Params {
     id: string;
@@ -114,6 +118,8 @@ export default function Page({
     thread,
     eth_price
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
+    // Add new state for authentication
+    const [isAuthenticated, setIsAuthenticated] = useState(true);
     const [replyText, setReplyText] = useState('');
     const [selectedQuestionId, setSelectedQuestionId] = useState<number | null>(thread.posts[0].question_id);
     const [error, setError] = useState('');
@@ -177,6 +183,11 @@ export default function Page({
         checkTransaction();
     }, [pendingTx]);
 
+    // Add useEffect for authentication check
+    useEffect(() => {
+        setIsAuthenticated(localStorage.getItem('token') != null);
+    }, []);
+
     const createAnswerHash = () => {
         if (!address) return null;
         console.log('Creating answer hash with:', { address, replyText });
@@ -206,12 +217,13 @@ export default function Page({
             // Check API availability + token validity
             try {
                 const check = await api.get('/api/auth/who_am_i/');
-                if (check.code == 'token_not_valid') { 
+                if (check.code == 'token_not_valid') {
                     localStorage.removeItem('token')
                     localStorage.removeItem('refresh')
                     disconnect();
                     setError('Authentication error. Your session has expired. Please log back in.');
-                    return; }
+                    return;
+                }
             } catch (authError) {
                 console.error('Authentication check failed:', authError);
                 localStorage.removeItem('token')
@@ -242,7 +254,7 @@ export default function Page({
 
                 const answerHash = createAnswerHash();
                 const questionHashBytes32 = convertToBytes32(selectedPost.question_hash);
-                
+
                 console.log('Preparing contract call:', {
                     questionHashBytes32,
                     answerHash,
@@ -255,7 +267,7 @@ export default function Page({
                         answerHash: answerHash ? answerHash : "0x",
                         questionHash: questionHashBytes32
                     });
-                    
+
                     const { request } = await simulateContract(config, {
                         address: process.env.NEXT_PUBLIC_SEPOLIA_FACTHOUND as `0x${string}`,
                         abi: FACTHOUND_ABI,
@@ -449,6 +461,11 @@ export default function Page({
                     </div>
                     <div className={styles.replyContainer}>
                         <form className={loginStyles.form} onSubmit={handleSubmit}>
+                            {!isAuthenticated && (
+                                <div className={loginStyles.loginMessage}>
+                                    Please <Link href="/login">log in</Link> to post a reply
+                                </div>
+                            )}
                             {error && <div className={loginStyles.error}>{error}</div>}
                             <div className={loginStyles.formGroup}>
                                 <label htmlFor="reply">
@@ -460,15 +477,21 @@ export default function Page({
                                     value={replyText}
                                     onChange={(e) => setReplyText(e.target.value)}
                                     required
+                                    disabled={!isAuthenticated}
+                                    title={!isAuthenticated ? "Please log in to post a reply" : ""}
                                 />
                             </div>
-                            <button type="submit">
+                            <button type="submit" disabled={!isAuthenticated}>
                                 {selectedQuestionId ? 'Submit Answer' : 'Reply'}
                             </button>
                             {selectedQuestionId && (
-                                <button type="button" onClick={() => {
-                                    setSelectedQuestionId(null);
-                                }}>
+                                <button
+                                    type="button"
+                                    disabled={!isAuthenticated}
+                                    onClick={() => {
+                                        setSelectedQuestionId(null);
+                                    }}
+                                >
                                     Post a reply instead
                                 </button>
                             )}

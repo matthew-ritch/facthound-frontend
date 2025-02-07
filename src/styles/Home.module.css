@@ -457,6 +457,7 @@
 
 .marquee p {
   display: inline-block;
+  font-size:large;
   animation: marquee 18s linear infinite;
   padding-left: 100%;
 }

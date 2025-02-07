@@ -47,6 +47,7 @@ export default function CreateThread() {
     });
     const [error, setError] = useState('');
     const [waitingForTransaction, setWaitingForTransaction] = useState(false);
+    const [isAuthenticated, setIsAuthenticated] = useState(true);
     const router = useRouter();
     const { address } = useAccount();
     const { data: hash, isPending, writeContract } = useWriteContract();
@@ -220,6 +221,11 @@ export default function CreateThread() {
         }
     }, [hash]);
 
+    // are we authenticated?
+    useEffect(() => {
+        setIsAuthenticated(localStorage.getItem('token') != null);
+    }, []);
+
     // Replace the existing transaction status section with this new one
     const renderTransactionStatus = () => {
         switch (transactionState) {
@@ -274,18 +280,24 @@ export default function CreateThread() {
                 return null;
         }
     };
-
     return (
         <div className={styles.container}>
             <Header config={config} />
             <form className={styles.form} onSubmit={handleSubmit}>
                 <h1>Ask a Question</h1>
+                {!isAuthenticated && (
+                    <div className={styles.loginMessage}>
+                        Please <Link href="/login">log in</Link> to post a question
+                    </div>
+                )}
                 {error && <div className={styles.error}>{error}</div>}
                 <div className={styles.formGroup}>
                     <label htmlFor="topic">Topic</label>
                     <input
                         type="text"
                         id="topic"
+                        disabled={!isAuthenticated}
+                        title={!isAuthenticated ? "Please log in to post a question" : ""}
                         value={threadDetails.topic}
                         onChange={(e) => setThreadDetails({
                             ...threadDetails,
@@ -299,6 +311,8 @@ export default function CreateThread() {
                     <textarea
                         className={styles.postText}
                         id="text"
+                        disabled={!isAuthenticated}
+                        title={!isAuthenticated ? "Please log in to post a question" : ""}
                         value={threadDetails.text}
                         onChange={(e) => setThreadDetails({
                             ...threadDetails,
@@ -312,6 +326,8 @@ export default function CreateThread() {
                     <input
                         type="text"
                         id="tags"
+                        disabled={!isAuthenticated}
+                        title={!isAuthenticated ? "Please log in to post a question" : ""}
                         value={threadDetails.tags}
                         onChange={(e) => setThreadDetails({
                             ...threadDetails,
