@@ -15,6 +15,8 @@ export default function Login() {
   const [error, setError] = useState('');
   const router = useRouter();
   const { isConnected } = useAccount();
+  const next_page = typeof router.query.next === 'string' ? router.query.next : '/';
+  console.log("login", next_page);
 
   useEffect(() => {
     if (isConnected) {
@@ -37,7 +39,7 @@ export default function Login() {
         localStorage.setItem('token', token);
         localStorage.setItem('refresh', refresh);
         localStorage.setItem('username', credentials.username);
-        router.push("/")
+        router.push(next_page)
       }
     } catch (err: any) {
       setError(

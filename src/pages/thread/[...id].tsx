@@ -146,7 +146,7 @@ export default function Page({
 
     useEffect(() => {
         // Only access localStorage on the client side
-        setUsername(window.localStorage?.getItem('username') ?? undefined);
+        setIsAuthenticated(localStorage.getItem('token') != null && localStorage.getItem('username') != null);
     }, []);
 
     useEffect(() => {
@@ -439,7 +439,7 @@ export default function Page({
 
     return (
         <div className={styles.container}>
-            <Header config={config} />
+            <Header config={config} next={`/thread/${thread.threadId}`} />
             <main className={styles.main}>
                 <div className={styles.container} style={{ paddingTop: '30px' }}>
                     <div className={styles.threadTitle}>
@@ -463,7 +463,7 @@ export default function Page({
                         <form className={loginStyles.form} onSubmit={handleSubmit}>
                             {!isAuthenticated && (
                                 <div className={loginStyles.loginMessage}>
-                                    Please <Link href="/login">log in</Link> to answer
+                                    Please <Link href={`/login?next=/thread/${thread.threadId}`}>log in</Link> to answer
                                 </div>
                             )}
                             {error && <div className={loginStyles.error}>{error}</div>}

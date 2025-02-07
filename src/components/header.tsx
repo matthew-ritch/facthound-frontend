@@ -4,9 +4,11 @@ import { Config } from '@wagmi/core';
 
 interface HeaderContext {
     config?: Config,
+    next?: string
 }
 
-export function Header({config}: HeaderContext) {
+export function Header({config, next}: HeaderContext) {
+    console.log(next)
     return (
         <>
             <Head>
@@ -19,7 +21,7 @@ export function Header({config}: HeaderContext) {
                 <link href="/static/icon.png" rel="icon" />
                 <link rel="apple-touch-icon" sizes="180x180" href="/static/apple-touch-icon.png" />
             </Head>
-            {config? <Navbar config={config}/>: null}
+            {config? <Navbar config={config} next={next}/>: null}
         </>
     )
 }

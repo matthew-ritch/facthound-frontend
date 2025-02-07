@@ -6,11 +6,12 @@ import { useState } from 'react';
 
 interface NavbarProps {
   config: Config;
+  next?: string;
 }
 
-export function Navbar({ config }: NavbarProps) {
+export function Navbar({ config, next }: NavbarProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-
+  console.log(next)
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
@@ -35,7 +36,7 @@ export function Navbar({ config }: NavbarProps) {
         </Link>
       </div>
       <div className={styles.authSection}>
-        <LoginButtons config={config} />
+        <LoginButtons config={config} next={next} />
       </div>
       <div className={`${styles.mobileMenu} ${isMenuOpen ? styles.active : ''}`}>
         <Link href={`/createthread`}>
@@ -43,7 +44,7 @@ export function Navbar({ config }: NavbarProps) {
             Ask a Question
           </div>
         </Link>
-        <LoginButtons config={config} />
+        <LoginButtons config={config} next={next} />
       </div>
     </nav>
   );

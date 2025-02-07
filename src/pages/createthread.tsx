@@ -223,7 +223,7 @@ export default function CreateThread() {
 
     // are we authenticated?
     useEffect(() => {
-        setIsAuthenticated(localStorage.getItem('token') != null);
+        setIsAuthenticated(localStorage.getItem('token') != null && localStorage.getItem('username') != null);
     }, [address, typeof window !== 'undefined' && localStorage.getItem('token')]);
 
     // Replace the existing transaction status section with this new one
@@ -282,12 +282,12 @@ export default function CreateThread() {
     };
     return (
         <div className={styles.container}>
-            <Header config={config} />
+            <Header config={config} next={"/createthread"} />
             <form className={styles.form} onSubmit={handleSubmit}>
                 <h1>Ask a Question</h1>
                 {!isAuthenticated && (
                     <div className={styles.loginMessage}>
-                        Please <Link href="/login">log in</Link> to ask a question
+                        Please <Link href={`/login?next=/createthread`}>log in</Link> to ask a question
                     </div>
                 )}
                 {error && <div className={styles.error}>{error}</div>}

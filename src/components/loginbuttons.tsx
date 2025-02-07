@@ -8,6 +8,7 @@ import { useEffect, useState } from 'react';
 interface LoginButtonContext {
     config: Config,
     username?: string | null
+    next?: string
 }
 
 const LoggedInView = ({ username, setUsername }: { username: string, setUsername: (username: string | null) => void }) => (
@@ -23,20 +24,21 @@ const LoggedInView = ({ username, setUsername }: { username: string, setUsername
     </div>
 );
 
-const LoggedOutView = ({ isConnected }: { isConnected: boolean }) => (
+const LoggedOutView = ({ isConnected, next }: { isConnected: boolean, next?: string }) => (
     <div className={styles.loginContainer}>
         <div>
             <ConnectButton />
         </div>
         {!isConnected && (
-            <Link href="/login">
+            <Link href={`/login${next ? `?next=${next}` : ''}`}>
                 <div className={styles.buttonlink}>Login</div>
             </Link>
         )}
     </div>
 );
 
-export function LoginButtons({ config }: LoginButtonContext) {
+export function LoginButtons({ config, next }: LoginButtonContext) {
+    console.log(next)
     const { address, isConnected } = useAccount();
     const [username, setUsername] = useState<string | null>(null);
     const [mounted, setMounted] = useState(false);
@@ -50,5 +52,5 @@ export function LoginButtons({ config }: LoginButtonContext) {
 
     return username
         ? <LoggedInView username={username} setUsername={setUsername} />
-        : <LoggedOutView isConnected={isConnected} />;
+        : <LoggedOutView isConnected={isConnected} next={next}/>;
 }
