@@ -16,7 +16,6 @@ export default function Login() {
   const router = useRouter();
   const { isConnected } = useAccount();
   const next_page = typeof router.query.next === 'string' ? router.query.next : '/';
-  console.log("login", next_page);
 
   useEffect(() => {
     if (isConnected) {

@@ -143,6 +143,7 @@ export default function Page({
     const router = useRouter();
     const { address } = useAccount();
     const [pendingTx, setPendingTx] = useState<`0x${string}` | null>(null);
+    const is_onchain = thread.posts.find(p => p.question_hash) ? true : false;
 
     useEffect(() => {
         // Only access localStorage on the client side
@@ -153,17 +154,13 @@ export default function Page({
         if (!pendingTx) return;
 
         const checkTransaction = async () => {
-            console.log('Checking transaction:', pendingTx);
             try {
                 const receipt = await publicClient.waitForTransactionReceipt({
                     hash: pendingTx
                 });
 
-                console.log('Transaction receipt:', receipt);
-
                 if (receipt.status === 'success') {
                     if (transactionType === 'answer') {
-                        console.log('Submitting successful transaction to API:', onchainAnswerProps);
                         await submitToApi(onchainAnswerProps);
                     }
                     setTransactionComplete(true);
@@ -190,22 +187,18 @@ export default function Page({
 
     const createAnswerHash = () => {
         if (!address) return null;
-        console.log('Creating answer hash with:', { address, replyText });
         // Pack and hash the data to ensure bytes32 output
         const packed = encodePacked(
             ['address', 'string'],
             [address, replyText]
         );
-        console.log('Packed data:', packed);
         // Hash the packed data to get bytes32
         const hash = keccak256(packed);
-        console.log('Generated hash:', hash);
         return hash;
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        console.log('Submit started with:', { selectedQuestionId, replyText });
 
         try {
             // Check if user is logged in
@@ -245,21 +238,14 @@ export default function Page({
             }
 
             // Check if this is a question that requires on-chain verification
-            console.log(selectedPost);
             if (selectedPost.question_hash) {
-                console.log('On-chain question detected:', {
-                    questionHash: selectedPost.question_hash,
-                    address: address
-                });
+                if (!address) {
+                    setError('Please connect your wallet');
+                    return;
+                }
 
                 const answerHash = createAnswerHash();
                 const questionHashBytes32 = convertToBytes32(selectedPost.question_hash);
-
-                console.log('Preparing contract call:', {
-                    questionHashBytes32,
-                    answerHash,
-                    contractAddress: process.env.NEXT_PUBLIC_SEPOLIA_FACTHOUND
-                });
 
                 try {
                     setOnchainAnswerProps({
@@ -275,7 +261,6 @@ export default function Page({
                         args: [questionHashBytes32, answerHash ? answerHash as `0x${string}` : "0x" as `0x${string}`]
                     });
 
-                    console.log('Contract simulation successful:', request);
                     setTransactionType('answer');
                     setWaitingForTransaction(true);
                     writeContract(request);
@@ -314,7 +299,6 @@ export default function Page({
 
     useEffect(() => {
         if (hash) {
-            console.log('Transaction hash received:', hash);
             setPendingTx(hash);
         }
     }, [hash]);
@@ -461,11 +445,17 @@ export default function Page({
                     </div>
                     <div className={styles.replyContainer}>
                         <form className={loginStyles.form} onSubmit={handleSubmit}>
-                            {!isAuthenticated && (
+                            {(!is_onchain && !isAuthenticated) && (
                                 <div className={loginStyles.loginMessage}>
                                     Please <Link href={`/login?next=/thread/${thread.threadId}`}>log in</Link> to answer
                                 </div>
                             )}
+                            {(address==null && is_onchain) && (
+                                <div className={loginStyles.loginMessage}>
+                                    Please connect your wallet to answer a question with a bounty
+                                </div>
+                            )}
+                            
                             {error && <div className={loginStyles.error}>{error}</div>}
                             <div className={loginStyles.formGroup}>
                                 <label htmlFor="reply">
@@ -477,7 +467,7 @@ export default function Page({
                                     value={replyText}
                                     onChange={(e) => setReplyText(e.target.value)}
                                     required
-                                    disabled={!isAuthenticated}
+                                    disabled={!isAuthenticated || (address==null && is_onchain)}
                                     title={!isAuthenticated ? "Please log in to answer" : ""}
                                 />
                             </div>
@@ -487,7 +477,7 @@ export default function Page({
                             {selectedQuestionId && (
                                 <button
                                     type="button"
-                                    disabled={!isAuthenticated}
+                                    disabled={!isAuthenticated || (address==null && is_onchain)}
                                     onClick={() => {
                                         setSelectedQuestionId(null);
                                     }}

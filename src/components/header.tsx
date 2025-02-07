@@ -8,7 +8,6 @@ interface HeaderContext {
 }
 
 export function Header({config, next}: HeaderContext) {
-    console.log(next)
     return (
         <>
             <Head>

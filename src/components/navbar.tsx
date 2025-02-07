@@ -11,7 +11,6 @@ interface NavbarProps {
 
 export function Navbar({ config, next }: NavbarProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  console.log(next)
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };

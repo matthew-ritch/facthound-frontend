@@ -38,7 +38,6 @@ const LoggedOutView = ({ isConnected, next }: { isConnected: boolean, next?: str
 );
 
 export function LoginButtons({ config, next }: LoginButtonContext) {
-    console.log(next)
     const { address, isConnected } = useAccount();
     const [username, setUsername] = useState<string | null>(null);
     const [mounted, setMounted] = useState(false);
