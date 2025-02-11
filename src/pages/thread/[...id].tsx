@@ -118,7 +118,6 @@ export default function Page({
     thread,
     eth_price
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
-    // Add new state for authentication
     const [isAuthenticated, setIsAuthenticated] = useState(true);
     const [replyText, setReplyText] = useState('');
     const [selectedQuestionId, setSelectedQuestionId] = useState<number | null>(thread.posts[0].question_id);
@@ -141,14 +140,11 @@ export default function Page({
     });
     const { data: hash, isPending, writeContract } = useWriteContract();
     const router = useRouter();
-    const { address } = useAccount();
+    const { address, status } = useAccount();
     const [pendingTx, setPendingTx] = useState<`0x${string}` | null>(null);
     const is_onchain = thread.posts.find(p => p.question_hash) ? true : false;
+    const wallet_disconnected = status === 'disconnected';
 
-    useEffect(() => {
-        // Only access localStorage on the client side
-        setIsAuthenticated(localStorage.getItem('token') != null && localStorage.getItem('username') != null);
-    }, []);
 
     useEffect(() => {
         if (!pendingTx) return;
@@ -180,7 +176,7 @@ export default function Page({
         checkTransaction();
     }, [pendingTx]);
 
-    // Add useEffect for authentication check
+    // are we authenticated?
     useEffect(() => {
         setIsAuthenticated(localStorage.getItem('token') != null);
     }, [address, typeof window !== 'undefined' && localStorage.getItem('token')]);
@@ -249,13 +245,13 @@ export default function Page({
 
                 try {
                     setOnchainAnswerProps({
-                        contractAddress: process.env.NEXT_PUBLIC_SEPOLIA_FACTHOUND as `0x${string}`,
+                        contractAddress: process.env.NEXT_PUBLIC_BASE_MAINNET_FACTHOUND as `0x${string}`,
                         answerHash: answerHash ? answerHash : "0x",
                         questionHash: questionHashBytes32
                     });
 
                     const { request } = await simulateContract(config, {
-                        address: process.env.NEXT_PUBLIC_SEPOLIA_FACTHOUND as `0x${string}`,
+                        address: process.env.NEXT_PUBLIC_BASE_MAINNET_FACTHOUND as `0x${string}`,
                         abi: FACTHOUND_ABI,
                         functionName: 'createAnswer',
                         args: [questionHashBytes32, answerHash ? answerHash as `0x${string}` : "0x" as `0x${string}`]
@@ -351,7 +347,7 @@ export default function Page({
                 const formattedQuestionHash = convertToBytes32(questionHash);
 
                 const { request } = await simulateContract(config, {
-                    address: process.env.NEXT_PUBLIC_SEPOLIA_FACTHOUND as `0x${string}`,
+                    address: process.env.NEXT_PUBLIC_BASE_MAINNET_FACTHOUND as `0x${string}`,
                     abi: FACTHOUND_ABI,
                     functionName: 'selectAnswer',
                     args: [formattedQuestionHash, formattedAnswerHash]
@@ -445,17 +441,18 @@ export default function Page({
                     </div>
                     <div className={styles.replyContainer}>
                         <form className={loginStyles.form} onSubmit={handleSubmit}>
+
                             {(!is_onchain && !isAuthenticated) && (
                                 <div className={loginStyles.loginMessage}>
                                     Please <Link href={`/login?next=/thread/${thread.threadId}`}>log in</Link> to answer
                                 </div>
                             )}
-                            {(address==null && is_onchain) && (
+                            {(wallet_disconnected && is_onchain && !isAuthenticated) && (
                                 <div className={loginStyles.loginMessage}>
                                     Please connect your wallet to answer a question with a bounty
                                 </div>
                             )}
-                            
+
                             {error && <div className={loginStyles.error}>{error}</div>}
                             <div className={loginStyles.formGroup}>
                                 <label htmlFor="reply">
@@ -467,17 +464,17 @@ export default function Page({
                                     value={replyText}
                                     onChange={(e) => setReplyText(e.target.value)}
                                     required
-                                    disabled={!isAuthenticated || (address==null && is_onchain)}
+                                    disabled={!isAuthenticated || (address == null && is_onchain)}
                                     title={!isAuthenticated ? "Please log in to answer" : ""}
                                 />
                             </div>
-                            <button type="submit" disabled={!isAuthenticated || (address==null && is_onchain)}>
+                            <button type="submit" disabled={!isAuthenticated || (address == null && is_onchain)}>
                                 {selectedQuestionId ? 'Submit Answer' : 'Reply'}
                             </button>
                             {selectedQuestionId && (
                                 <button
                                     type="button"
-                                    disabled={!isAuthenticated || (address==null && is_onchain)}
+                                    disabled={!isAuthenticated || (address == null && is_onchain)}
                                     onClick={() => {
                                         setSelectedQuestionId(null);
                                     }}

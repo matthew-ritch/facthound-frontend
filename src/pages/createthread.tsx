@@ -110,7 +110,7 @@ export default function CreateThread() {
 
                 try {
                     const { request } = await simulateContract(config, {
-                        address: process.env.NEXT_PUBLIC_SEPOLIA_FACTHOUND as `0x${string}`,
+                        address: process.env.NEXT_PUBLIC_BASE_MAINNET_FACTHOUND as `0x${string}`,
                         abi: FACTHOUND_ABI,
                         functionName: 'createQuestion',
                         args: [questionHash ? questionHash : "0x"],
@@ -183,7 +183,7 @@ export default function CreateThread() {
                 if (receipt.status === 'success') {
                     try {
                         // Submit to API after successful transaction
-                        await submitToApi(process.env.NEXT_PUBLIC_SEPOLIA_FACTHOUND as `0x${string}`);
+                        await submitToApi(process.env.NEXT_PUBLIC_BASE_MAINNET_FACTHOUND as `0x${string}`);
                         setTransactionSuccess(true);
                         setTransactionState(TransactionStates.SUCCESS);
                     } catch (err) {
@@ -223,7 +223,7 @@ export default function CreateThread() {
 
     // are we authenticated?
     useEffect(() => {
-        setIsAuthenticated(localStorage.getItem('token') != null && localStorage.getItem('username') != null);
+        setIsAuthenticated(localStorage.getItem('token') != null );
     }, [address, typeof window !== 'undefined' && localStorage.getItem('token')]);
 
     // Replace the existing transaction status section with this new one
@@ -251,7 +251,7 @@ export default function CreateThread() {
                         <div className={styles.statusMessage}>
                             Transaction in progress...
                             {hash && <div className={styles.hashDisplay}>
-                                Transaction Hash: <a href={`https://sepolia.basescan.org/tx/${hash}`}
+                                Transaction Hash: <a href={`https://basescan.org/tx/${hash}`}
                                     target="_blank"
                                     rel="noopener noreferrer">
                                     {`${hash.substring(0, 6)}...${hash.substring(hash.length - 4)}`}

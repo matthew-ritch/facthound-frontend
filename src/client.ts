@@ -1,7 +1,7 @@
 import { createPublicClient, http } from 'viem'
-import { baseSepolia } from 'viem/chains'
- 
+import { base } from 'viem/chains'
+
 export const publicClient = createPublicClient({
-    chain: baseSepolia,
-    transport: http('https://base-sepolia.g.alchemy.com/v2/J5VbtLhS-VFrpXkxRWPX9XbNIOOcmI_K')
+    chain: base,
+    transport: http('https://base-mainnet.g.alchemy.com/v2/J5VbtLhS-VFrpXkxRWPX9XbNIOOcmI_K')
 })
