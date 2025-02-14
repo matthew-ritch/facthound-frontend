@@ -54,6 +54,7 @@ export default function Home({
   return (
     <div className={styles.container}>
       <Header config={config} />
+      <meta name="description" content="Facthound is a truth-seeking missile."></meta>
       <main className={styles.main} >
         <div className={styles.marquee}>
             <p>{marqueeText}</p>

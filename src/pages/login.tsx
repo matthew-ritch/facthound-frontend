@@ -52,7 +52,8 @@ export default function Login() {
   return (
     <main>
       <div className={styles.container}>
-      <Header/>
+        <meta name="description" content="Facthound is a truth-seeking missile."></meta>
+        <Header />
         <form className={styles.form} onSubmit={handleSubmit}>
           <h1>Login</h1>
           {error && <div className={styles.error}>{error}</div>}
@@ -87,10 +88,10 @@ export default function Login() {
           </button>
         </form>
         <div className={styles.buttonContainer}>
-            <ConnectButton />
-            <Link href={`/createuser`} className={styles.buttonlink}>
-              Create an account
-            </Link>
+          <ConnectButton />
+          <Link href={`/createuser`} className={styles.buttonlink}>
+            Create an account
+          </Link>
         </div>
       </div>
     </main>

@@ -38,7 +38,8 @@ export default function CreateUser() {
 
     return (
         <div className={styles.container}>
-            <Header/>
+            <meta name="description" content="Facthound is a truth-seeking missile."></meta>
+            <Header />
             <form className={styles.form} onSubmit={handleSubmit}>
                 <h1>Create User</h1>
                 {error && <div className={styles.error}>{error}</div>}

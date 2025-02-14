@@ -282,6 +282,7 @@ export default function CreateThread() {
     };
     return (
         <div className={styles.container}>
+            <meta name="description" content="Facthound is a truth-seeking missile."></meta>
             <Header config={config} next={"/createthread"} />
             <form className={styles.form} onSubmit={handleSubmit}>
                 <h1>Ask a Question</h1>
