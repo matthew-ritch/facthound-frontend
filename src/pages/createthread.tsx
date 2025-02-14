@@ -109,8 +109,9 @@ export default function CreateThread() {
                 setTransactionState(TransactionStates.AWAITING_SIGNATURE);
 
                 try {
+                    const contractAddress = process.env.NEXT_PUBLIC_BASE_MAINNET_FACTHOUND as `0x${string}`;
                     const { request } = await simulateContract(config, {
-                        address: process.env.NEXT_PUBLIC_BASE_MAINNET_FACTHOUND as `0x${string}`,
+                        address: contractAddress,
                         abi: FACTHOUND_ABI,
                         functionName: 'createQuestion',
                         args: [questionHash ? questionHash : "0x"],
@@ -120,6 +121,7 @@ export default function CreateThread() {
                     setTransactionState(TransactionStates.AWAITING_SIGNATURE);
                     await writeContract(request);
                     if (hash) setPendingTx(hash); // Set pending transaction hash
+                    const response = await submitToApi(contractAddress);
                     setTransactionState(TransactionStates.PENDING);
 
                 } catch (err: any) {
@@ -138,7 +140,12 @@ export default function CreateThread() {
             }
 
             // If no bounty, proceed directly with API call
-            await submitToApi(undefined);
+            const response = await submitToApi(undefined);
+            if (response.message === 'success') {
+                router.push(`/thread/${response.thread}`);
+            } else {
+                setError('Thread creation failed. Please try again.');
+            }
 
         } catch (err: any) {
             setWaitingForTransaction(false); // Reset waiting state on error
@@ -163,11 +170,7 @@ export default function CreateThread() {
             questionHash: contractAddress?createQuestionHash():'',
         });
 
-        if (response.message === 'success') {
-            router.push(`/thread/${response.thread}`);
-        } else {
-            setError('Thread creation failed. Please try again.');
-        }
+        return response
     };
 
     // Add effect to monitor transaction status
@@ -182,12 +185,22 @@ export default function CreateThread() {
 
                 if (receipt.status === 'success') {
                     try {
-                        // Submit to API after successful transaction
-                        await submitToApi(process.env.NEXT_PUBLIC_BASE_MAINNET_FACTHOUND as `0x${string}`);
-                        setTransactionSuccess(true);
-                        setTransactionState(TransactionStates.SUCCESS);
+                        // Submit confirmation to API after successful transaction
+                        const response = await api.post('/api/questions/confirm/', {
+                            transactionHash: pendingTx,
+                            confirmType: 'question',
+                            questionHash: createQuestionHash()
+                        });
+                        if (response.message === 'Success') {
+                            setTransactionSuccess(true);
+                            setTransactionState(TransactionStates.SUCCESS);
+                            router.push(`/thread/${response.thread}`);
+                        } else {
+                            setError('Thread creation failed. Please try again.');
+                        }
+                        
                     } catch (err) {
-                        console.error('API submission failed:', err);
+                        console.error('Confirm submission failed:', err);
                         setError('Failed to submit question to API');
                         setTransactionState(TransactionStates.ERROR);
                     }
@@ -207,14 +220,12 @@ export default function CreateThread() {
         checkTransaction();
     }, [pendingTx]);
 
-    // Replace the previous useEffect with this simpler version
     useEffect(() => {
         return () => {
             resetTransactionState();
         };
     }, []);
 
-    // Update useEffect for hash changes
     useEffect(() => {
         if (hash) {
             setPendingTx(hash);
@@ -226,7 +237,6 @@ export default function CreateThread() {
         setIsAuthenticated(localStorage.getItem('token') != null );
     }, [address, typeof window !== 'undefined' && localStorage.getItem('token')]);
 
-    // Replace the existing transaction status section with this new one
     const renderTransactionStatus = () => {
         switch (transactionState) {
             case TransactionStates.PREPARING:
