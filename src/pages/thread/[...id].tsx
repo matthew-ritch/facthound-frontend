@@ -15,6 +15,7 @@ import { publicClient } from '../../client';
 
 import styles from '../../styles/Home.module.css';
 import loginStyles from '../../styles/Login.module.css';
+import { Contract } from 'ethers';
 
 interface Params {
     id: string;
@@ -145,7 +146,7 @@ export default function Page({
     const is_onchain = thread.posts.find(p => p.question_hash) ? true : false;
     const wallet_disconnected = status === 'disconnected';
 
-
+    // monitor tx state
     useEffect(() => {
         if (!pendingTx) return;
 
@@ -156,9 +157,6 @@ export default function Page({
                 });
 
                 if (receipt.status === 'success') {
-                    if (transactionType === 'answer') {
-                        await submitToApi(onchainAnswerProps);
-                    }
                     setTransactionComplete(true);
                 } else {
                     console.error('Transaction failed:', receipt);
@@ -179,6 +177,7 @@ export default function Page({
     // are we authenticated?
     useEffect(() => {
         setIsAuthenticated(localStorage.getItem('token') != null);
+        setUsername(localStorage.getItem('username')?? undefined);
     }, [address, typeof window !== 'undefined' && localStorage.getItem('token')]);
 
     const createAnswerHash = () => {
@@ -260,6 +259,11 @@ export default function Page({
                     setTransactionType('answer');
                     setWaitingForTransaction(true);
                     writeContract(request);
+                    const response = await submitToApi({
+                        contractAddress: process.env.NEXT_PUBLIC_BASE_MAINNET_FACTHOUND as `0x${string}`,
+                        questionHash: questionHashBytes32,
+                        answerHash: answerHash ? answerHash : "0x",
+                    });
                 } catch (contractError: any) {
                     console.error('Contract simulation failed:', {
                         error: contractError,
@@ -321,11 +325,12 @@ export default function Page({
         );
 
 
-        if (response.message.includes('success')) {
-            router.reload();
-        } else {
+        if (!response.message.includes('success')) {
             console.error('API submission failed:', response);
             setError('Reply failed. Please try again.');
+        }
+        if ((props ? false : true) && response.message.includes('success')) {
+            router.reload();
         }
     };
 
@@ -363,6 +368,12 @@ export default function Page({
                 setTransactionType('select');
                 setWaitingForTransaction(true);
                 writeContract(request);
+
+                // API call to record selection
+                await api.post('/api/questions/selection/', {
+                    question: questionId,
+                    answer: answerId
+                });
             } catch (err: any) {
                 console.error('Select answer error:', err);
                 setError(err.message || 'Failed to select answer');
@@ -396,14 +407,23 @@ export default function Page({
                 switch (transactionType) {
                     case 'select':
                         if (selectedAnswerProps.questionId) {
-                            await api.post('/api/questions/selection/', {
-                                question: selectedAnswerProps.questionId,
-                                answer: selectedAnswerProps.answerId
+                            await api.post('/api/questions/confirm/', {
+                                contractAddress: process.env.NEXT_PUBLIC_BASE_MAINNET_FACTHOUND as `0x${string}`,
+                                questionHash: selectedAnswerProps.questionHash,
+                                answerHash: selectedAnswerProps.answerHash,
+                                confirmType: 'selection'
                             });
                         }
                         break;
+                    case 'answer':
+                        await api.post('/api/questions/confirm/', {
+                            contractAddress: onchainAnswerProps.contractAddress,
+                            questionHash: onchainAnswerProps.questionHash,
+                            answerHash: onchainAnswerProps.answerHash,
+                            confirmType: 'answer'
+                        });
+                        break;
                 }
-
                 // Reset states
                 setTransactionType(null);
                 setTransactionComplete(false);
@@ -415,7 +435,7 @@ export default function Page({
         };
 
         handleTransactionSuccess();
-    }, [transactionComplete]);
+    }, [transactionComplete, transactionType, selectedAnswerProps, onchainAnswerProps]);
 
     return (
         <div className={styles.container}>
