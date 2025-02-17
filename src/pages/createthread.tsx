@@ -350,7 +350,7 @@ export default function CreateThread() {
                     <label htmlFor="bounty">Bounty (ETH)</label>
                     <input
                         type="number"
-                        step="0.00025"
+                        step="0.00001"
                         min="0"
                         id="bounty"
                         value={threadDetails.bounty}
