@@ -10,6 +10,7 @@ export interface PostInfo {
     poster_wallet: string;
     question_id: number;
     contract_address: string;
+    question_status: string;
     question_hash: string;
     bounty: number | null;
     asker_address: string;
@@ -33,13 +34,13 @@ type PostProps = {
 function convertUrlsToLinks(text: string) {
     const urlRegex = /(https?:\/\/[^\s]+)/g;
     const parts = text.split(urlRegex);
-    
+
     return parts.map((part, i) => {
         if (part.match(urlRegex)) {
-            return <a 
-                key={i} 
-                href={part} 
-                target="_blank" 
+            return <a
+                key={i}
+                href={part}
+                target="_blank"
                 rel="noopener noreferrer"
                 onClick={(e) => e.stopPropagation()}
             >{part}</a>;
@@ -52,7 +53,7 @@ function formatDateTime(dateStr: string) {
     try {
         // Handle ISO string or fall back to direct parsing
         const date = dateStr.endsWith('Z') ? new Date(dateStr) : new Date(dateStr + 'Z');
-        
+
         // Check if date is valid
         if (isNaN(date.getTime())) {
             return 'Invalid date';
@@ -84,14 +85,14 @@ export default function Post({
     const isAnswerableQuestion = post.question_id && post.answer_id === null && onAnswer;
     const isAnswer = post.question_id !== null && post.answer_id !== null;
     const canSelectOnChain = post.question_id !== null && post.answer_id !== null && post.question_hash && post.answer_hash && userAddress === post.asker_address;
-    const canSelectOffChain = post.question_id !== null && 
-                             post.answer_id !== null && 
-                             !post.question_hash && 
-                             !post.answer_hash && 
-                             ((userName && 
-                             userName === post.asker_username) ||
-                             (userAddress &&
-                             userAddress === post.asker_address));
+    const canSelectOffChain = post.question_id !== null &&
+        post.answer_id !== null &&
+        !post.question_hash &&
+        !post.answer_hash &&
+        ((userName &&
+            userName === post.asker_username) ||
+            (userAddress &&
+                userAddress === post.asker_address));
     const handleClick = () => {
         if (isAnswerableQuestion && onAnswer) {
             onAnswer(post.question_id);
@@ -115,18 +116,18 @@ export default function Post({
             style={{ wordWrap: 'break-word', wordBreak: 'break-word' }}
         >
             <div>
-                {(onAnswer || onSelectAnswer) && ( <a onClick={(e) => e.stopPropagation()} href={`/user/${post.poster_id}`}> { post.poster_name ?? `${post.poster_wallet.slice(0, 4)}...${post.poster_wallet.slice(-4)}` }</a>)} 
-                {(!onAnswer && !onSelectAnswer) && (post.poster_name ?? `${post.poster_wallet.slice(0, 4)}...${post.poster_wallet.slice(-4)}`)} 
+                {(onAnswer || onSelectAnswer) && (<a onClick={(e) => e.stopPropagation()} href={`/user/${post.poster_id}`}> {post.poster_name ?? `${post.poster_wallet.slice(0, 4)}...${post.poster_wallet.slice(-4)}`}</a>)}
+                {(!onAnswer && !onSelectAnswer) && (post.poster_name ?? `${post.poster_wallet.slice(0, 4)}...${post.poster_wallet.slice(-4)}`)}
                 <span className={styles.dateTime}>({formatDateTime(post.dt)})</span>:
             </div>
 
             <div style={{ marginTop: '1rem' }}>
                 {convertUrlsToLinks(post.text)}
             </div>
-            
+
             {(post.question_id !== null && post.answer_id === null) && (
                 <div className={styles.questionLabel}>
-                    { onAnswer && `Click to answer` }
+                    {onAnswer && `Click to answer`}
                     {post.bounty && post.bounty > 0 && (
                         <div>Bounty: ${(eth_price * parseFloat(formatUnits(post.bounty, "ether"))).toFixed(2)} USD. <a onClick={(e) => e.stopPropagation()} href={`https://basescan.org/address/${post.contract_address}`}>Contract</a></div>
                     )}
@@ -135,16 +136,13 @@ export default function Post({
             {(post.question_id !== null && post.answer_id !== null) && (
                 <div>
                     <div className={styles.questionLabel}>
-                        Answer to question {post.question_id}
+                        {(post.answer_status === "SE" || post.answer_status === "PO" || post.answer_status === "CE") ?
+                            'Selected Answer' : 'Answer'
+                        }
                     </div>
-                    {onSelectAnswer && (canSelectOnChain || canSelectOffChain) && !(post.answer_status === "SE" || post.answer_status === "PO" || post.answer_status === "CE") && <div className={styles.questionLabel}>
-                        Click to select answer and pay the bounty
+                    {onSelectAnswer && (canSelectOnChain || canSelectOffChain) && (post.question_status === "OP") && <div className={styles.questionLabel}>
+                        Click to select answer
                     </div>}
-                    {(post.answer_status === "SE" || post.answer_status === "PO" || post.answer_status === "CE") && 
-                        <div className={styles.questionLabel}>
-                            Selected Answer
-                        </div>
-                    }
                 </div>
             )}
         </div>
