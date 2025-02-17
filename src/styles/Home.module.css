@@ -491,3 +491,61 @@
   font-size: 0.9em;
   margin-left: 5px;
 }
+
+.userInfo {
+  background: #f5f5f5;
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.tabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.tab {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  background: #f0f0f0;
+}
+
+.tab.active {
+  background: #0070f3;
+  color: white;
+}
+
+.postsContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.postLink {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+  transition: transform 0.2s ease;
+}
+
+.postLink:hover {
+  transform: translateY(-2px);
+}
+
+.answerContext {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.parentTopic {
+  font-size: 0.9rem;
+  color: #666;
+  padding: 4px 8px;
+  border-left: 3px solid #4CAF50;
+  background: #f5f5f5;
+  border-radius: 4px;
+}

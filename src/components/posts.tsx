@@ -17,6 +17,8 @@ export interface PostInfo {
     answer_status: string;
     answer_id: number | null;
     answer_hash: string | null;
+    thread_id?: number;
+    thread_topic?: string;
 }
 
 type PostProps = {
@@ -113,7 +115,8 @@ export default function Post({
             style={{ wordWrap: 'break-word', wordBreak: 'break-word' }}
         >
             <div>
-                {post.poster_name ?? <a onClick={(e) => e.stopPropagation()} href={`https://basescan.org/address/${post.poster_wallet}`}>{post.poster_wallet.slice(0, 4)}...{post.poster_wallet.slice(-4)}</a>} 
+                {(onAnswer || onSelectAnswer) && ( <a onClick={(e) => e.stopPropagation()} href={`/user/${post.poster_id}`}> { post.poster_name ?? `${post.poster_wallet.slice(0, 4)}...${post.poster_wallet.slice(-4)}` }</a>)} 
+                {(!onAnswer && !onSelectAnswer) && (post.poster_name ?? `${post.poster_wallet.slice(0, 4)}...${post.poster_wallet.slice(-4)}`)} 
                 <span className={styles.dateTime}>({formatDateTime(post.dt)})</span>:
             </div>
 
@@ -123,7 +126,7 @@ export default function Post({
             
             {(post.question_id !== null && post.answer_id === null) && (
                 <div className={styles.questionLabel}>
-                    Question {post.question_id}. Click to answer
+                    { onAnswer && `Click to answer` }
                     {post.bounty && post.bounty > 0 && (
                         <div>Bounty: ${(eth_price * parseFloat(formatUnits(post.bounty, "ether"))).toFixed(2)} USD. <a onClick={(e) => e.stopPropagation()} href={`https://basescan.org/address/${post.contract_address}`}>Contract</a></div>
                     )}
@@ -134,8 +137,8 @@ export default function Post({
                     <div className={styles.questionLabel}>
                         Answer to question {post.question_id}
                     </div>
-                    {(canSelectOnChain || canSelectOffChain) && !(post.answer_status === "SE" || post.answer_status === "PO" || post.answer_status === "CE") && <div className={styles.questionLabel}>
-                        Click to select answer
+                    {onSelectAnswer && (canSelectOnChain || canSelectOffChain) && !(post.answer_status === "SE" || post.answer_status === "PO" || post.answer_status === "CE") && <div className={styles.questionLabel}>
+                        Click to select answer and pay the bounty
                     </div>}
                     {(post.answer_status === "SE" || post.answer_status === "PO" || post.answer_status === "CE") && 
                         <div className={styles.questionLabel}>
