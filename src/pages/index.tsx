@@ -3,6 +3,7 @@ import styles from '../styles/Home.module.css';
 import { ThreadList, ThreadListProps } from '../components/threads';
 import { useState } from 'react';
 import { Header } from '../components/header';
+import Head from 'next/head';
 
 const factHoundSlogans = [
   "Facthound is a truth-seeking missile.",
@@ -53,8 +54,10 @@ export default function Home({
 
   return (
     <div className={styles.container}>
+      <Head>
+        <meta name="description" content="Facthound is a truth-seeking missile" />
+      </Head>
       <Header config={config} />
-      <meta name="description" content="Facthound is a truth-seeking missile."></meta>
       <main className={styles.main} >
         <div className={styles.marquee}>
             <p>{marqueeText}</p>
