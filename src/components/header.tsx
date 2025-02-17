@@ -12,10 +12,8 @@ export function Header({config, next}: HeaderContext) {
         <>
             <Head>
                 <title>Facthound</title>
-                <meta
-                    content="Facthound"
-                    name="Facthound"
-                />
+                <meta name="title" property="og:title" content="Facthound"></meta>
+                <meta name="author" content="matthew-ritch"></meta>
                 <link href="/static/favicon.ico" rel="icon" />
                 <link href="/static/icon.png" rel="icon" />
                 <link rel="apple-touch-icon" sizes="180x180" href="/static/apple-touch-icon.png" />
