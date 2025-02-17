@@ -507,8 +507,11 @@ export default function Page({
                     {(hash || isPending || transactionComplete) && (<div className={styles.transactionStatus}>
                         {hash && (
                             <div className={styles.statusItem}>
-                                <span className={styles.statusLabel}>Transaction Hash:</span>
-                                <span className={styles.statusValue}>{hash}</span>
+                                <span className={styles.statusLabel}>Transaction Hash: <a href={`https://basescan.org/tx/${hash}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer">
+                                    {`${hash.substring(0, 6)}...${hash.substring(hash.length - 4)}`}
+                                </a></span>
                             </div>
                         )}
                         {isPending && (
