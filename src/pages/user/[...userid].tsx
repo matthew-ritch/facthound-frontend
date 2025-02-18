@@ -71,7 +71,7 @@ export default function Page({
         <div className={styles.container}>
             <Header config={config} next={`/user/${userposts.userid}`} />
             <main className={styles.main}>
-                <div className={styles.container} style={{ paddingTop: '30px' }}>
+                <div className={styles.pageContainer}>
                     <div className={styles.userInfo}>
                         <h2>User History</h2>
                         {userposts.username ?? <a onClick={(e) => e.stopPropagation()} style={{ color: 'blue', textDecoration: 'underline' }} href={`https://basescan.org/address/${userposts?.wallet}`}>{userposts?.wallet}</a>}

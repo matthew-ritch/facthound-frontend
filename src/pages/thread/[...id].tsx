@@ -15,7 +15,6 @@ import { publicClient } from '../../client';
 
 import styles from '../../styles/Home.module.css';
 import loginStyles from '../../styles/Login.module.css';
-import { Contract } from 'ethers';
 
 interface Params {
     id: string;
