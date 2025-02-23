@@ -1,4 +1,5 @@
 import { useRouter } from 'next/router'
+import NotFound from "next/error";
 import Link from 'next/link';
 import type { InferGetServerSidePropsType } from 'next'
 import { useState, useEffect } from 'react';
@@ -34,6 +35,7 @@ export async function getServerSideProps(context: Context) {
     const { params } = context;
     const threadId = params?.id[0];
     // Fetch data from external API
+    try {
     const res = await fetch(process.env.BACKEND_URL + `/api/questions/thread?threadId=${threadId}`);
     const thread: Thread = await res.json();
     // Fetch eth price from alchemy
@@ -50,6 +52,9 @@ export async function getServerSideProps(context: Context) {
     const eth_price = priceinfo.data[0].prices[0].value;
     // Pass data to the page via props
     return { props: { thread, eth_price } };
+    } catch (error) {
+        return { props: { thread: { threadId: null, threadTopic: '', posts: [] }, eth_price: 0 } };
+    }
 }
 
 const FACTHOUND_ABI = [
@@ -118,6 +123,9 @@ export default function Page({
     thread,
     eth_price
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
+    if (!thread.threadId) {
+        return <NotFound statusCode={404} />;
+    }
     const [isAuthenticated, setIsAuthenticated] = useState(true);
     const [replyText, setReplyText] = useState('');
     const [selectedQuestionId, setSelectedQuestionId] = useState<number | null>(thread.posts[0].question_id);
