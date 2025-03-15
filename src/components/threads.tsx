@@ -2,6 +2,9 @@ import styles from '../styles/Home.module.css';
 import Link from 'next/link'
 import { formatUnits } from "ethers";
 
+/**
+ * Interface representing a forum thread's information
+ */
 export interface ThreadInfo {
     id: number;
     topic: string;
@@ -13,20 +16,36 @@ export interface ThreadInfo {
     tags: string[] | null;  // Add this line
 }
 
+/**
+ * Props for the Thread component
+ */
 type ThreadProps = {
     thread: ThreadInfo;
     eth_price: number;
 }
 
+/**
+ * Interface representing a list of forum threads
+ */
 interface ThreadList {
     threads: Array<ThreadInfo>
 }
 
+/**
+ * Props for the ThreadList component
+ */
 export type ThreadListProps = {
     threads: ThreadList;
     eth_price: number;
 }
 
+/**
+ * Renders a single forum thread with its metadata and bounty information
+ * 
+ * @param thread - The thread information to display
+ * @param eth_price - Current ETH price in USD for bounty conversion
+ * @returns A thread card component with title, metadata, tags, and bounty details
+ */
 export function Thread({
     thread,
     eth_price
@@ -78,12 +97,19 @@ export function Thread({
     )
 }
 
+/**
+ * Renders a grid of forum threads
+ * 
+ * @param threads - The list of threads to display
+ * @param eth_price - Current ETH price in USD for bounty conversion
+ * @returns A grid layout containing all thread components
+ */
 export function ThreadList({
     threads,
     eth_price
 }: ThreadListProps) {
     return (
-        <main>
+        <main></main>
             <div className={styles.grid}>
                 {threads.threads.map(k => <Thread thread={k} key={k.id} eth_price={eth_price} />)}
             </div>

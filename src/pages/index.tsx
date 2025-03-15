@@ -25,6 +25,10 @@ const factHoundSlogans = [
 ];
 const marqueeText = factHoundSlogans.join('       ');
 
+/**
+ * Homepage component
+ * Displays thread list with search functionality
+ */
 export default function Home({
   threads,
   eth_price,
@@ -33,6 +37,10 @@ export default function Home({
   const [searchTerm, setSearchTerm] = useState('');
   const [isSearching, setIsSearching] = useState(false);
 
+  /**
+   * Handles search form submission
+   * @param e - Form submission event
+   */
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!searchTerm.trim()) {
@@ -88,6 +96,10 @@ export default function Home({
   );
 }
 
+/**
+ * Fetches thread list and ETH price for server-side rendering
+ * @returns Props containing threads and ETH price
+ */
 export async function getServerSideProps() {
   // Fetch thread data from external API
   const res = await fetch(process.env.BACKEND_URL + `/api/questions/threadlist`);

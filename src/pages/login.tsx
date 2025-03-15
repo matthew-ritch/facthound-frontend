@@ -7,6 +7,11 @@ import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { useAccount } from 'wagmi';
 import { Header } from '../components/header';
 
+/**
+ * Login page component
+ * Allows users to authenticate with username/password
+ * Also provides options to create an account or connect with Ethereum wallet
+ */
 export default function Login() {
   const [credentials, setCredentials] = useState({
     username: '',
@@ -17,12 +22,19 @@ export default function Login() {
   const { isConnected } = useAccount();
   const next_page = typeof router.query.next === 'string' ? router.query.next : '/';
 
+  /**
+   * Redirect to home if user connects wallet
+   */
   useEffect(() => {
     if (isConnected) {
       router.push('/');
     }
   }, [isConnected, router]);
 
+  /**
+   * Handle login form submission
+   * @param e - Form submission event
+   */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {

@@ -6,6 +6,10 @@ import { cookies } from 'next/headers'
 import Link from 'next/link'
 import { Header } from '../components/header';
 
+/**
+ * Create User page component
+ * Allows new users to register with username, email, and password
+ */
 export default function CreateUser() {
     const [credentials, setCredentials] = useState({
         username: '',
@@ -15,6 +19,10 @@ export default function CreateUser() {
     const [error, setError] = useState('');
     const router = useRouter();
 
+    /**
+     * Handle user registration form submission
+     * @param e - Form submission event
+     */
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         try {

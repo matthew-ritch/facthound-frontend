@@ -11,6 +11,9 @@ import { config } from '../wagmi';
 import { parseUnits } from "ethers";
 import { Header } from '../components/header';
 
+/**
+ * Facthound smart contract ABI for creating questions with bounties
+ */
 const FACTHOUND_ABI = [
     {
         "type": "function",
@@ -27,7 +30,9 @@ const FACTHOUND_ABI = [
     }
 ] as const;
 
-// Add new state type at the top of the component
+/**
+ * Transaction state enum to track the lifecycle of on-chain transactions
+ */
 const TransactionStates = {
     IDLE: 'idle',
     PREPARING: 'preparing',
@@ -37,6 +42,11 @@ const TransactionStates = {
     ERROR: 'error'
 } as const;
 
+/**
+ * Thread creation page component
+ * Allows users to create new questions with optional ETH bounties
+ * Handles on-chain interactions for bounty creation
+ */
 export default function CreateThread() {
     const [threadDetails, setThreadDetails] = useState({
         topic: '',
@@ -57,6 +67,10 @@ export default function CreateThread() {
     const [transactionError, setTransactionError] = useState('');
     const [pendingTx, setPendingTx] = useState<`0x${string}` | null>(null);
 
+    /**
+     * Creates a unique hash for the question to be stored on-chain
+     * @returns bytes32 hash of address and question text
+     */
     const createQuestionHash = () => {
         if (!address) return null;
         return keccak256(
@@ -67,6 +81,9 @@ export default function CreateThread() {
         );
     };
 
+    /**
+     * Resets transaction state and error messages
+     */
     const resetTransactionState = () => {
         setTransactionState(TransactionStates.IDLE);
         setTransactionError('');
@@ -74,6 +91,11 @@ export default function CreateThread() {
         setTransactionSuccess(false); // Add this line
     };
 
+    /**
+     * Handles question submission
+     * Routes to appropriate flow based on whether there's a bounty
+     * @param e - Form submission event
+     */
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (localStorage.getItem('token') == null) {
@@ -160,7 +182,11 @@ export default function CreateThread() {
         }
     };
 
-    // New function to handle API submission
+    /**
+     * Submits question data to the API
+     * @param contractAddress - Optional address of contract if using bounty
+     * @returns API response
+     */
     const submitToApi = async (contractAddress: string | undefined) => {
         const response = await api.post('/api/questions/question/', {
             topic: threadDetails.topic,
@@ -237,6 +263,10 @@ export default function CreateThread() {
         setIsAuthenticated(localStorage.getItem('token') != null );
     }, [address, typeof window !== 'undefined' && localStorage.getItem('token')]);
 
+    /**
+     * Renders transaction status UI based on current state
+     * @returns Transaction status component
+     */
     const renderTransactionStatus = () => {
         switch (transactionState) {
             case TransactionStates.PREPARING:

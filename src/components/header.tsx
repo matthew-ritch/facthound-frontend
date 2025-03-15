@@ -2,11 +2,21 @@ import Head from 'next/head';
 import { Navbar } from '../components/navbar';
 import { Config } from '@wagmi/core';
 
+/**
+ * Props for the Header component
+ */
 interface HeaderContext {
     config?: Config,
     next?: string
 }
 
+/**
+ * Page header component that includes SEO metadata and navigation
+ * 
+ * @param config - Wagmi configuration for web3 connectivity
+ * @param next - Redirect URL after authentication
+ * @returns Header component with meta tags and navigation bar
+ */
 export function Header({config, next}: HeaderContext) {
     return (
         <>

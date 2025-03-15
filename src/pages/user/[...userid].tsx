@@ -9,18 +9,30 @@ import { config } from '../../wagmi';
 
 import styles from '../../styles/Home.module.css';
 
+/**
+ * User profile URL parameters
+ */
 interface Params {
     userid: string[];
 }
 
+/**
+ * Context provided to getServerSideProps
+ */
 interface Context {
     params?: Params;
 }
 
+/**
+ * Extended PostInfo with parent topic information for answers
+ */
 interface AnswerInfo extends PostInfo {
     parent_topic: string;  // Add this field
 }
 
+/**
+ * User profile data structure with questions and answers
+ */
 interface UserPosts {
     userid: number,
     username: string,
@@ -29,6 +41,11 @@ interface UserPosts {
     answers: Array<AnswerInfo>  // Update this type
 }
 
+/**
+ * Fetches user profile data and ETH price for server-side rendering
+ * @param context - Next.js context with URL parameters
+ * @returns Props containing user post history and ETH price
+ */
 export async function getServerSideProps(context: Context) {
     const { params } = context;
     const userid = params?.userid[0];
@@ -51,6 +68,10 @@ export async function getServerSideProps(context: Context) {
     return { props: { userposts, eth_price } };
 }
 
+/**
+ * User profile page component
+ * Displays a user's history of questions and answers
+ */
 export default function Page({
     userposts,
     eth_price

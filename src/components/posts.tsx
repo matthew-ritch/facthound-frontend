@@ -1,6 +1,9 @@
 import styles from '../styles/Home.module.css';
 import { formatUnits } from "ethers";
 
+/**
+ * Interface representing a forum post's information
+ */
 export interface PostInfo {
     id: number;
     text: string;
@@ -22,6 +25,9 @@ export interface PostInfo {
     thread_topic?: string;
 }
 
+/**
+ * Props for the Post component
+ */
 type PostProps = {
     post: PostInfo;
     eth_price: number;
@@ -31,6 +37,12 @@ type PostProps = {
     userName?: string;
 }
 
+/**
+ * Converts URLs in text to clickable links
+ * 
+ * @param text - Text content that may contain URLs
+ * @returns An array of elements with URLs converted to anchor tags
+ */
 function convertUrlsToLinks(text: string) {
     const urlRegex = /(https?:\/\/[^\s]+)/g;
     const parts = text.split(urlRegex);
@@ -49,6 +61,12 @@ function convertUrlsToLinks(text: string) {
     });
 }
 
+/**
+ * Formats a date string into a human-readable format
+ * 
+ * @param dateStr - Date string to format
+ * @returns Formatted date and time string
+ */
 function formatDateTime(dateStr: string) {
     try {
         // Handle ISO string or fall back to direct parsing
@@ -74,6 +92,17 @@ function formatDateTime(dateStr: string) {
     }
 }
 
+/**
+ * Renders a post with its content, metadata, and associated actions
+ * 
+ * @param post - The post information to display
+ * @param eth_price - Current ETH price in USD for bounty conversion
+ * @param onAnswer - Callback function when user wants to answer a question
+ * @param onSelectAnswer - Callback function when user selects an answer
+ * @param userAddress - Current user's wallet address
+ * @param userName - Current user's username
+ * @returns A post component with content, metadata, and action options
+ */
 export default function Post({
     post,
     eth_price,

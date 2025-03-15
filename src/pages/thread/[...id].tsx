@@ -17,20 +17,34 @@ import { publicClient } from '../../client';
 import styles from '../../styles/Home.module.css';
 import loginStyles from '../../styles/Login.module.css';
 
+/**
+ * Thread page parameters from URL
+ */
 interface Params {
     id: string;
 }
 
+/**
+ * Context provided to getServerSideProps
+ */
 interface Context {
     params: Params;
 }
 
+/**
+ * Thread data structure
+ */
 interface Thread {
     threadId: number,
     threadTopic: string,
     posts: Array<PostInfo>
 }
 
+/**
+ * Fetches thread data and ETH price for server-side rendering
+ * @param context - Next.js context with URL parameters
+ * @returns Props containing thread data and ETH price
+ */
 export async function getServerSideProps(context: Context) {
     const { params } = context;
     const threadId = params?.id[0];
@@ -57,6 +71,10 @@ export async function getServerSideProps(context: Context) {
     }
 }
 
+/**
+ * ABI for the Facthound smart contract
+ * Includes functions for creating answers, selecting answers, and redeeming rewards
+ */
 const FACTHOUND_ABI = [
     {
         "type": "function",
@@ -109,7 +127,11 @@ const FACTHOUND_ABI = [
     }
 ] as const;
 
-// Add this utility function after the ABI definition
+/**
+ * Converts a hex string to bytes32 format required by the smart contract
+ * @param hexString - Hex string to convert
+ * @returns bytes32 representation as 0x-prefixed string
+ */
 const convertToBytes32 = (hexString: string): `0x${string}` => {
     // Remove '0x' if present and ensure the string is 64 characters
     const cleanHex = hexString.startsWith('0x') ? hexString.slice(2) : hexString;
@@ -119,6 +141,11 @@ const convertToBytes32 = (hexString: string): `0x${string}` => {
     return `0x${cleanHex}` as `0x${string}`;
 };
 
+/**
+ * Thread page component
+ * Displays a thread with all its posts and allows users to reply or answer questions
+ * Handles on-chain interactions for blockchain-verified answers
+ */
 export default function Page({
     thread,
     eth_price
